@@ -1,0 +1,38 @@
+{
+  "name": "gif-subtitles",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
+    "eject": "react-app-rewired eject",
+    "packageVersion": "echo $npm_package_version",
+    "pm2": "pm2 restart startup.json --env config",
+    "pm2docker": "pm2-docker start startup.json"
+  },
+  "dependencies": {
+    "http-proxy": "^1.16.2",
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-send": "^4.1.0",
+    "koa-static-cache": "^5.0.1",
+    "winston": "^2.4.1",
+    "moment": "^2.21.0"
+  },
+  "devDependencies": {
+    "antd": "^3.4.0",
+    "antd-mobile": "^2.1.8",
+    "axios": "^0.18.0",
+    "babel-plugin-import": "^1.6.7",
+    "less": "^3.0.1",
+    "less-loader": "^4.1.0",
+    "react": "^16.2.0",
+    "react-app-rewired": "^1.5.0",
+    "react-dom": "^16.2.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.1"
+  },
+  "proxy": "http://localhost:8000"
+}
