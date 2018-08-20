@@ -17,7 +17,7 @@
                 </Upload>
             </div>
             <div class="operation" v-show="gifFile">
-                <img id="example1" :rel:animated_src="gifFile" rel:auto_play="0" width="467"
+                <img id="example1" :src="gifFile" :rel:animated_src="gifFile" rel:auto_play="0" width="467"
                      height="375"/>
                 <button @click="pause">pause</button>
                 <button @click="play">play</button>
@@ -33,7 +33,7 @@
 export default {
   data() {
     return {
-      gifFile: null,
+      gifFile: {},
       gif: null,
     };
   },
@@ -50,15 +50,21 @@ export default {
       console.log(this.gif.get_length());
     },
     uploadGif(file) {
-      const reader = new FileReader();
-      reader.readAsBinaryString(file);
-      reader.onload = () => {
-        this.gifFile = reader.result;
-        /* this.gif = new SuperGif({ gif: document.getElementById('example1') });
-        this.gif.load();*/
-      };
+      const formData = new FormData();
+      formData.append('file', file);
+      this.$axios.post('/uploadImg', formData).then(res => {
+        return this.$axios.get(``, formData);
+      }).then(res => {
+
+      });
+
+
+      /* reader.onload = () => {
+        this.gif = new SuperGif({ gif: document.getElementById('example1') });
+        this.gif.load();
+      };*/
       return false;
-    }
+    },
   },
   created() {
   },

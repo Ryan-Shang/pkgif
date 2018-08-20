@@ -8,9 +8,11 @@ import App from './App.vue';
 import store from './store';
 import routes from './route';
 import iView from 'iview';
+import axios from './helper/axios';
 
 Vue.use(iView);
 Vue.use(VueRouter);
+Vue.prototype.$axios = axios;
 
 const router = new VueRouter({
   routes,

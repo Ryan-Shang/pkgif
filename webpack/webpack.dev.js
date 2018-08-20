@@ -19,13 +19,13 @@ module.exports = webpackMerge(commonConfig, {
     }),
   ],
   devServer: {
-    host: '0.0.0.0',
+    host: '127.0.0.1',
     port: 9010,
     proxy: {
-      '/back-public': {
+      '/public': {
         target: 'http://127.0.0.1:7001',
       },
-      '/back-api': {
+      '/api': {
         target: 'http://127.0.0.1:7001',
       },
     },

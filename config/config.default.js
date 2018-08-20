@@ -13,36 +13,12 @@ module.exports = appInfo => {
     },
     // 静态资源
     static: {
+      prefix: '',
       maxAge: 365 * 24 * 60 * 60,
       gzip: true,
       usePrecompiledGzip: true,
       dynamic: true,
-    },
-    // swagger
-    swagger2: {
-      enable: false,
-      base: {
-        info: {
-          version: '1.0.0',
-          title: '2期前台接口',
-        },
-        tags: [
-          {
-            name: 'front-public',
-            description: '前台公开接口',
-          },
-          {
-            name: 'front-api',
-            description: '前台鉴权接口',
-          },
-        ],
-        definitions: {
-          // model definitions
-        },
-        securityDefinitions: {
-          // security definitions
-        },
-      },
+      tmpdir: 'tmp',
     },
     // ------local------
     // log

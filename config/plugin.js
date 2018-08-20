@@ -11,8 +11,8 @@ module.exports = {
     enable: true,
     package: 'egg-validate',
   },
-  swagger2: {
+  helper: {
     enable: true,
-    package: 'egg-swagger2',
+    package: 'egg-helper',
   },
 };
