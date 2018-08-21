@@ -1,4 +1,4 @@
-import './helper/libgif/libgif';
+import './helper/libgif/libgif.bak';
 import './helper/libgif/rubbable';
 import 'iview/dist/styles/iview.css';
 import './asset/style/common.less';

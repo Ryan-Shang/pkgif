@@ -54,9 +54,9 @@
 */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['./libgif'], factory);
+        define(['./libgif.bak'], factory);
     } else if (typeof exports === 'object') {
-        module.exports = factory(require('./libgif'));
+        module.exports = factory(require('./libgif.bak'));
     } else {
       root = root || window;
       root.RubbableGif = factory(root.SuperGif);
