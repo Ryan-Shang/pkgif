@@ -16,14 +16,17 @@
                     </div>
                 </Upload>
             </div>
-            <div class="operation">
-                <img id="example1" rel:auto_play="0" width="467"
-                     height="375"/>
-                <img id="example2" rel:auto_play="0" width="467"
-                     height="375"/>
-                <button @click="pause">pause</button>
-                <button @click="play">play</button>
-                <button @click="show">show</button>
+            <div class="operation" v-show="gif">
+                <div style="display: inline-block;">
+                    <div ref="gifBox"></div>
+                    <div class="control">
+                        <Button icon="md-undo" @click="toBegin"></Button>
+                        <Button icon="md-skip-backward" @click="prevOne"></Button>
+                        <Button :icon="playing ? 'md-pause' : 'md-play'" @click="playAndPause"></Button>
+                        <Button icon="md-skip-forward" @click="nextOne"></Button>
+                        <Button icon="md-skip-forward" @click="show"></Button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -31,54 +34,64 @@
 </template>
 
 <script>
-import gifFile from '../asset/img/test.gif';
+import SuperGif from '../helper/libgif';
 
 export default {
   data() {
     return {
       gif: null,
-      gif2:null,
+      playing: false,
+      allFrame: 0,
+      currentFrame: 0,
     };
   },
+  computed: {},
   methods: {
-    pause() {
-      this.gif2.pause();
+    toBegin() {
+      this.gif.move_to(1);
     },
-    play() {
-      this.gif2.play();
+    prevOne() {
+      this.gif.move_relative(-1);
+    },
+    playAndPause() {
+      if (this.playing) {
+        this.gif.pause();
+        this.playing = false;
+      } else {
+        this.gif.play();
+        this.playing = true;
+      }
+    },
+    nextOne() {
+      this.gif.move_relative(1);
     },
     show() {
+      console.log(this.gif.get_playing());
       console.log(this.gif);
       console.log(this.gif.get_current_frame());
       console.log(this.gif.get_length());
     },
     uploadGif(file) {
-      this.gif = new SuperGif({ gif: document.getElementById('example1') });
-      this.gif.load_url(gifFile);
       const reader = new FileReader();
-      reader.onload = function(event) {
-        // 图片路径设置为读取的图片
-        this.gif2 = new SuperGif({ gif: document.getElementById('example2') });
-        this.gif2.load_url(gifFile,event.target.result);
-        console.log(this.gif2);
+      reader.onload = event => {
+        this.init(event.target.result);
       };
       reader.readAsText(file, 'x-user-defined');
-
-      /* const formData = new FormData();
-      formData.append('file', file);
-      this.$axios.post('/uploadImg', formData).then(res => {
-        return this.$axios.get(``, formData);
-      }).then(res => {
-
-      });*/
       return false;
+    },
+    init(data) {
+      this.gif = new SuperGif({
+        container: this.$refs.gifBox,
+        auto_play: 0,
+      });
+      this.gif.load(data);
+      this.playing = false;
+      this.allFrame = this.gif.get_length();
     },
   },
   created() {
   },
   mounted() {
-    /* this.gif = new _SuperGif({ gif: document.getElementById('example1') });
-    this.gif.load(gifFile);*/
   },
 };
 </script>
@@ -94,6 +107,17 @@ export default {
             .upload {
                 width: 500px;
                 margin: 0 auto;
+            }
+            .operation {
+                width: 800px;
+                margin: 20px auto 0;
+                text-align: center;
+                .jsgif {
+                    max-width: 800px;
+                }
+                .control {
+                    margin: 10px 0;
+                }
             }
         }
     }
