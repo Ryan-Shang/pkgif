@@ -16,7 +16,7 @@
                     </div>
                 </Upload>
             </div>
-            <div class="operation" v-show="gif">
+            <div class="operation">
                 <div style="display: inline-block;">
                     <div ref="gifBox"></div>
                     <div class="control">
@@ -27,6 +27,11 @@
                         <Button icon="md-skip-forward" @click="show"></Button>
                     </div>
                 </div>
+
+                <div class="timeline">
+                    <div style="text-align: center;font-size:18px">{{currentFrame}} / {{allFrame}}</div>
+                    <vue-slider ref="slider" v-model="currentFrame" v-bind="options" :max="allFrame"></vue-slider>
+                </div>
             </div>
 
         </div>
@@ -35,23 +40,68 @@
 
 <script>
 import SuperGif from '../helper/libgif';
+import vueSlider from 'vue-slider-component';
 
 export default {
+  components: {
+    vueSlider,
+  },
   data() {
     return {
+      editReady: false,
       gif: null,
       playing: false,
-      allFrame: 0,
       currentFrame: 0,
+      allFrame: 0,
+      timeLines: [],
+      options: {
+        eventType: 'auto',
+        width: 'auto',
+        height: 6,
+        dotSize: 16,
+        dotHeight: null,
+        dotWidth: null,
+        min: 0,
+        interval: 1,
+        show: true,
+        speed: 0.1,
+        disabled: false,
+        piecewise: false,
+        piecewiseLabel: false,
+        tooltip: true,
+        tooltipDir: 'top',
+        reverse: false,
+        data: null,
+        clickable: true,
+        realTime: false,
+        lazy: false,
+        formatter: null,
+        bgStyle: null,
+        sliderStyle: null,
+        processStyle: null,
+        piecewiseActiveStyle: null,
+        piecewiseStyle: null,
+        tooltipStyle: null,
+        labelStyle: null,
+        labelActiveStyle: null,
+      },
     };
   },
-  computed: {},
+  watch: {
+    currentFrame(val) {
+      this.gif.move_to(val);
+    },
+  },
   methods: {
     toBegin() {
-      this.gif.move_to(1);
+      this.gif.move_to(0);
+      this.gif.pause();
+      this.playing = false;
+      this.currentFrame = this.gif.get_current_frame();
     },
     prevOne() {
       this.gif.move_relative(-1);
+      this.currentFrame = this.gif.get_current_frame();
     },
     playAndPause() {
       if (this.playing) {
@@ -64,12 +114,14 @@ export default {
     },
     nextOne() {
       this.gif.move_relative(1);
+      this.currentFrame = this.gif.get_current_frame();
     },
     show() {
       console.log(this.gif.get_playing());
       console.log(this.gif);
       console.log(this.gif.get_current_frame());
       console.log(this.gif.get_length());
+      console.log(this.gif.get_canvas_scale());
     },
     uploadGif(file) {
       const reader = new FileReader();
@@ -80,13 +132,24 @@ export default {
       return false;
     },
     init(data) {
+      this.editReady = false;
       this.gif = new SuperGif({
         container: this.$refs.gifBox,
         auto_play: 0,
+        loop_mode: false,
+        on_end: () => {
+          this.playing = false;
+        },
+        on_play: () => {
+          this.currentFrame = this.gif.get_current_frame();
+        },
       });
-      this.gif.load(data);
-      this.playing = false;
-      this.allFrame = this.gif.get_length();
+      this.gif.load(data, () => {
+        this.editReady = true;
+        this.allFrame = this.gif.get_length() - 1;
+        this.options.max = this.allFrame;
+        this.toBegin();
+      });
     },
   },
   created() {
@@ -117,6 +180,10 @@ export default {
                 }
                 .control {
                     margin: 10px 0;
+                }
+                .timeline {
+                    width: 500px;
+                    margin: 40px auto 0;
                 }
             }
         }

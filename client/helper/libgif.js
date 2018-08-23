@@ -345,13 +345,13 @@ class SuperGif {
   /**
    * @param {object} opts 配置对象
    * container      dom容器
-   * loop_mode			Optional. Setting this to false will force disable looping of the gif.
-   * auto_play 			Optional. Same as the rel:auto_play attribute above, this arg overrides the img tag info.
-   * max_width			Optional. Scale images over max_width down to max_width. Helpful with mobile.
-   * on_end				Optional. Add a callback for when the gif reaches the end of a single loop (one iteration). The first argument passed will be the gif HTMLElement.
-   * loop_delay			Optional. The amount of time to pause (in ms) after each single loop (iteration).
-   * draw_while_loading	Optional. Determines whether the gif will be drawn to the canvas whilst it is loaded.
-   * show_progress_bar	Optional. Only applies when draw_while_loading is set to true.
+   * loop_mode      Optional. Setting this to false will force disable looping of the gif.
+   * auto_play      Optional. Same as the rel:auto_play attribute above, this arg overrides the img tag info.
+   * max_width      Optional. Scale images over max_width down to max_width. Helpful with mobile.
+   * on_end        Optional. Add a callback for when the gif reaches the end of a single loop (one iteration). The first argument passed will be the gif HTMLElement.
+   * loop_delay      Optional. The amount of time to pause (in ms) after each single loop (iteration).
+   * draw_while_loading  Optional. Determines whether the gif will be drawn to the canvas whilst it is loaded.
+   * show_progress_bar  Optional. Only applies when draw_while_loading is set to true.
    */
   constructor(opts) {
     const options = {
@@ -397,6 +397,7 @@ class SuperGif {
     }
 
     const onEndListener = (options.hasOwnProperty('on_end') ? options.on_end : null);
+    const onPlayListener = (options.hasOwnProperty('on_play') ? options.on_play : null);
     const loopDelay = (options.hasOwnProperty('loop_delay') ? options.loop_delay : 0);
     const overrideLoopMode = (options.hasOwnProperty('loop_mode') ? options.loop_mode : 'auto');
     let drawWhileLoading = (options.hasOwnProperty('draw_while_loading') ? options.draw_while_loading : true);
@@ -678,6 +679,9 @@ class SuperGif {
           if (!delay) delay = 100; // FIXME: Should this even default at all? What should it be?
 
           const nextFrameNo = getNextFrameNo();
+          if (onPlayListener) {
+            onPlayListener();
+          }
           if (nextFrameNo === 0) {
             delay += loopDelay;
             setTimeout(completeLoop, delay);
