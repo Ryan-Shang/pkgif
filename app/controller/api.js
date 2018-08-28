@@ -3,7 +3,7 @@ const Controller = require('egg').Controller;
 
 class publicController extends Controller {
 
-  async postUploadImg() {
+  async postFeedback() {
     const { ctx } = this;
     const { succeed } = ctx.helper.response;
     const { saveTmpGif } = ctx.helper.util;

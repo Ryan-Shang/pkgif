@@ -424,14 +424,11 @@ class SuperGif {
       }
     };
 
-    const doText = function(text) {
-      toolbar.innerHTML = text; // innerText? Escaping? Whatever.
-      toolbar.style.visibility = 'visible';
-    };
-
     const setSizes = function(w, h) {
       canvas.width = w * get_canvas_scale();
       canvas.height = h * get_canvas_scale();
+      addItemCanvas.width = canvas.width;
+      addItemCanvas.height = canvas.height;
       toolbar.style.minWidth = (w * get_canvas_scale()) + 'px';
 
       tmpCanvas.width = w;
@@ -807,19 +804,22 @@ class SuperGif {
       container.innerHTML = '';
 
       const div = document.createElement('div');
+      addItemCanvas = document.createElement('canvas');
+      addItemCanvas.id = 'addItemCanvas';
       canvas = document.createElement('canvas');
       ctx = canvas.getContext('2d');
       toolbar = document.createElement('div');
 
       tmpCanvas = document.createElement('canvas');
 
-      div.width = canvas.width = container.width;
-      div.height = canvas.height = container.height;
+      div.width = canvas.width = addItemCanvas.height = container.width;
+      div.height = canvas.height = addItemCanvas.height = container.height;
       toolbar.style.minWidth = container.width + 'px';
 
       div.className = 'jsgif';
       toolbar.className = 'jsgif_toolbar';
       div.appendChild(canvas);
+      div.appendChild(addItemCanvas);
       div.appendChild(toolbar);
 
       container.appendChild(div, container);
@@ -839,6 +839,7 @@ class SuperGif {
     };
 
     let canvas,
+      addItemCanvas,
       ctx,
       toolbar,
       tmpCanvas;

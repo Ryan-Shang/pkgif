@@ -5,6 +5,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const helpers = require('./helpers');
 const { VueLoaderPlugin } = require('vue-loader');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -128,5 +129,11 @@ module.exports = {
       chunksSortMode: 'dependency',
       template: helpers.root('client/index.html'),
     }),
+    new CopyWebpackPlugin([
+      {
+        from: helpers.root('client/static'),
+        to: helpers.root('webapp'),
+      },
+    ]),
   ],
 };
