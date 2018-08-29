@@ -193,6 +193,15 @@ export default {
       });
       this.gif.load(data, () => {
         this.subTextFabric = new fabric.Canvas('addItemCanvas');
+        this.subTextFabric.on({
+          'object:modified': e => {
+            console.log(e);
+            const target = e.target;
+            this.addItem[ this.currentAddItemIndex ].top = target.top;
+            this.addItem[ this.currentAddItemIndex ].left = target.left;
+            this.addItem[ this.currentAddItemIndex ].fontSize = target.fontSize;
+          }
+        });
         this.loading.upload = false;
         this.$Spin.hide();
         this.editReady = true;
@@ -252,11 +261,6 @@ export default {
             originX: 'center',
             centeredScaling: true,
           });
-
-
-          Text.onSelect(a => {
-            console.log(a);
-          })
           this.subTextFabric.add(Text);
         }
       }
