@@ -68,6 +68,22 @@
                                     <FormItem label="内容">
                                         <Input v-model="addItem[currentAddItemIndex].text"></Input>
                                     </FormItem>
+                                    <FormItem label="字体">
+                                        <Select v-model="addItem[currentAddItemIndex].fontFamily">
+                                            <Option v-for="(item,key) in fontFamilyList" :value="key" :key="key">
+                                                {{item}}
+                                            </Option>
+                                        </Select>
+                                    </FormItem>
+                                    <FormItem label="大小">
+                                        <InputNumber v-model="addItem[currentAddItemIndex].fontSize"
+                                                     :min="0"></InputNumber>
+                                    </FormItem>
+                                    <FormItem label="样式">
+                                        <Checkbox v-model="addItem[currentAddItemIndex].isBold"><strong>B</strong>
+                                        </Checkbox>
+                                        <Checkbox v-model="addItem[currentAddItemIndex].isItalic"><i>I</i></Checkbox>
+                                    </FormItem>
                                     <FormItem label="颜色">
                                         <ColorPicker v-model="addItem[currentAddItemIndex].color" recommend alpha/>
                                     </FormItem>
@@ -129,16 +145,30 @@ export default {
       currentAddItemIndex: null,
       subTextFabric: null,
       viewSize: null,
+      fontFamilyList: {
+        SimSun: '宋体',
+        SimHei: '黑体',
+        'Microsoft YaHei': '微软雅黑',
+        'Microsoft JhengHei': '微软正黑体',
+        KaiTi: '楷体',
+        NSimSun: '新宋体',
+        FangSong: '仿宋',
+      },
+      delay: null,
     };
   },
   watch: {
     currentFrame(val) {
-      this.gif.move_to(val);
-      this.renderText();
+      if (this.gif) {
+        this.gif.move_to(val);
+        this.renderText();
+      }
     },
     addItem: {
       handler() {
-        this.renderText();
+        if (this.gif) {
+          this.renderText();
+        }
       },
       deep: true,
     },
@@ -191,16 +221,15 @@ export default {
           this.currentFrame = this.gif.get_current_frame();
         },
       });
-      this.gif.load(data, () => {
+      this.gif.load(data, delay => {
+        this.delay = delay;
         this.subTextFabric = new fabric.Canvas('addItemCanvas');
         this.subTextFabric.on({
           'object:modified': e => {
-            console.log(e);
             const target = e.target;
             this.addItem[ this.currentAddItemIndex ].top = target.top;
             this.addItem[ this.currentAddItemIndex ].left = target.left;
-            this.addItem[ this.currentAddItemIndex ].fontSize = target.fontSize;
-          }
+          },
         });
         this.loading.upload = false;
         this.$Spin.hide();
@@ -222,7 +251,9 @@ export default {
         top: this.viewSize.height * 0.8,
         left: this.viewSize.width / 2,
         fontSize: this.viewSize.width * this.viewSize.height / 1500,
-        rotate: 0,
+        fontFamily: 'Microsoft YaHei',
+        isBold: false,
+        isItalic: false,
       };
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
@@ -240,9 +271,7 @@ export default {
       this.currentAddItemIndex = length - 1;
     },
     renderText() {
-      if (this.subTextFabric) {
-        this.subTextFabric.clear();
-      }
+      this.subTextFabric.clear();
       for (const item of this.addItem) {
         if (item.frameRange[ 0 ] <= this.currentFrame && item.frameRange[ 1 ] >= this.currentFrame) {
           const Text = new fabric.Text(item.text, {
@@ -250,16 +279,17 @@ export default {
             left: item.left,
             fill: item.color,
             fontSize: item.fontSize,
-            fontFamily: '微软雅黑',
-            fontWeight: 'normal',
-            fontStyle: 'normal',
-            borderColor: '#000',
-            cornerColor: '#2d8cf0',
-            cornerSize: 8,
-            transparentCorners: false,
+            fontFamily: item.fontFamily,
+            fontWeight: item.isBold ? 'bold' : 'normal',
+            fontStyle: item.isItalic ? 'italic' : 'normal',
+            hasControls: false,
             originY: 'center',
             originX: 'center',
-            centeredScaling: true,
+            borderColor: '#000',
+            /* cornerColor: '#2d8cf0',
+            cornerSize: 8,
+            transparentCorners: false,
+            centeredScaling: true,*/
           });
           this.subTextFabric.add(Text);
         }
@@ -269,31 +299,54 @@ export default {
       const gif = new GIF({
         workers: 2,
         quality: 10,
+        width: this.viewSize.width,
+        height: this.viewSize.height,
       });
-
-      this.toBegin();
-      while (this.currentFrame < this.allFrame) {
-        const textCanvas = this.subTextFabric.lowerCanvasEl;
-        const gifCanvas = this.gif.get_canvas();
-        const gifCtxCopy = gifCanvas.cloneNode(true).getContext('2d');
-        gifCtxCopy.drawImage(textCanvas, 0, 0, this.viewSize.width, this.viewSize.width);
-        gif.addFrame(textCanvas, { delay: 200 });
-        this.currentFrame++;
-      }
-
 
       gif.on('finished', function(blob) {
         const reader = new FileReader();
         reader.onload = event => {
-          const a = document.createElement('a');
-          a.download = 'gif.gif';
+          const img = new Image();
+          img.src = event.target.result;
+          document.querySelector('body').appendChild(img);
+          /* const a = document.createElement('a');
+          a.download = 'pkgif.gif';
           a.href = event.target.result;
-          a.click();
+          a.click();*/
         };
         reader.readAsDataURL(blob);
       });
 
-      gif.render();
+      this.toBegin();
+
+      const addFrame = () => {
+        const width = this.viewSize.width;
+        const height = this.viewSize.height;
+        const img1 = new Image();
+        img1.src = this.subTextFabric.lowerCanvasEl.toDataURL();
+        const ctx = this.gif.get_canvas().getContext('2d');
+        /*ctx.drawImage(img1, 0, 0, width, height);
+        const img = new Image();
+        img.src = this.gif.get_canvas().toDataURL();*/
+        /*const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const img2 = new Image();
+        img2.src = canvas.toDataURL();*/
+        gif.addFrame(ctx, { delay: this.delay });
+        this.currentFrame++;
+        if (this.currentFrame < this.allFrame) {
+          setTimeout(() => {
+            addFrame();
+          });
+        } else {
+          gif.render();
+        }
+      };
+      addFrame();
+
     },
     restart() {
       Object.assign(this.$data, this.$options.data());

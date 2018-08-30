@@ -175,7 +175,6 @@ const parseGIF = (st, handler) => {
       block.transparencyGiven = bits.shift();
 
       block.delayTime = st.readUnsigned();
-
       block.transparencyIndex = st.readByte();
 
       block.terminator = st.readByte();
@@ -677,7 +676,7 @@ class SuperGif {
 
           const nextFrameNo = getNextFrameNo();
           if (onPlayListener) {
-            onPlayListener();
+            onPlayListener(delay);
           }
           if (nextFrameNo === 0) {
             delay += loopDelay;
@@ -794,7 +793,7 @@ class SuperGif {
         player.init();
         loading = false;
         if (load_callback) {
-          load_callback(container);
+          load_callback(frames[ 0 ].delay * 10 || 100, container);
         }
 
       },
