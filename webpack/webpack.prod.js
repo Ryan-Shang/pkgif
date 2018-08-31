@@ -9,7 +9,7 @@ module.exports = webpackMerge(commonConfig, {
   mode: 'production',
 
   output: {
-    path: helpers.root('app/public/admin'),
+    path: helpers.root('app/public'),
     publicPath: '',
     filename: '[name].[chunkhash].js',
   },

@@ -1,3 +1,4 @@
+/* eslint-disable */
 class Stream {
   constructor(data) {
     this.data = data;

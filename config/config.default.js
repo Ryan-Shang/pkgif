@@ -1,5 +1,6 @@
 'use strict';
-
+const fs = require('fs');
+const path = require('path');
 module.exports = appInfo => {
   return {
     keys: appInfo.name + '_1521256564072_3999',
@@ -18,14 +19,16 @@ module.exports = appInfo => {
       gzip: true,
       usePrecompiledGzip: true,
       dynamic: true,
-      tmpdir: 'tmp',
+    },
+    siteFile: {
+      '/favicon.ico': '',
     },
     // ------local------
     // log
     logger: {
       level: 'NONE',
       consoleLevel: 'DEBUG',
-      dir: '/home/log/woodenears-service',
+      dir: '/home/log/pkgif',
     },
     // mongodb
     mongoose: {

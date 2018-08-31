@@ -28,8 +28,7 @@
     "egg-validate": "^1.0.0",
     "fs-extra": "^7.0.0",
     "jsonwebtoken": "^8.2.1",
-    "qiniu": "^7.1.5",
-    "uuid": "^3.3.2"
+    "qiniu": "^7.1.5"
   },
   "devDependencies": {
     "autod": "^3.0.1",

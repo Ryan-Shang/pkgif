@@ -21,7 +21,7 @@ module.exports = {
   },
   module: {
     rules: [
-      /* {
+      {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
@@ -30,7 +30,7 @@ module.exports = {
           formatter: require('eslint-friendly-formatter'),
           emitWarning: true,
         },
-      },*/
+      },
       {
         test: /\.html$/,
         loader: 'html-loader',
@@ -128,6 +128,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       chunksSortMode: 'dependency',
       template: helpers.root('client/index.html'),
+      favicon: helpers.root('client/favicon.ico'),
     }),
     new CopyWebpackPlugin([
       {

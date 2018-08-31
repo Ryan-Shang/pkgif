@@ -103,6 +103,18 @@
                 </div>
             </div>
         </div>
+        <Modal
+                v-model="generateModalShow"
+                :mask-closable="false"
+                @on-cancel="closeGenerateModal"
+                title="生成成功">
+            <div style="text-align: center">
+                <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
+            </div>
+            <div slot="footer">
+                <Button @click="closeGenerateModal">关闭</Button>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -144,7 +156,10 @@ export default {
       addItem: [],
       currentAddItemIndex: null,
       subTextFabric: null,
-      viewSize: null,
+      viewSize: {
+        width: 0,
+        height: 0,
+      },
       fontFamilyList: {
         SimSun: '宋体',
         SimHei: '黑体',
@@ -155,6 +170,8 @@ export default {
         FangSong: '仿宋',
       },
       delay: null,
+      generateModalShow: false,
+      generateGif: null,
     };
   },
   watch: {
@@ -296,6 +313,7 @@ export default {
       }
     },
     generate() {
+      this.$Spin.show();
       const gif = new GIF({
         workers: 2,
         quality: 10,
@@ -303,16 +321,12 @@ export default {
         height: this.viewSize.height,
       });
 
-      gif.on('finished', function(blob) {
+      gif.on('finished', blob => {
         const reader = new FileReader();
         reader.onload = event => {
-          const img = new Image();
-          img.src = event.target.result;
-          document.querySelector('body').appendChild(img);
-          /* const a = document.createElement('a');
-          a.download = 'pkgif.gif';
-          a.href = event.target.result;
-          a.click();*/
+          this.$Spin.hide();
+          this.generateGif = event.target.result;
+          this.generateModalShow = true;
         };
         reader.readAsDataURL(blob);
       });
@@ -322,31 +336,28 @@ export default {
       const addFrame = () => {
         const width = this.viewSize.width;
         const height = this.viewSize.height;
-        const img1 = new Image();
-        img1.src = this.subTextFabric.lowerCanvasEl.toDataURL();
-        const ctx = this.gif.get_canvas().getContext('2d');
-        /*ctx.drawImage(img1, 0, 0, width, height);
-        const img = new Image();
-        img.src = this.gif.get_canvas().toDataURL();*/
-        /*const canvas = document.createElement('canvas');
+        const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const img2 = new Image();
-        img2.src = canvas.toDataURL();*/
-        gif.addFrame(ctx, { delay: this.delay });
+        ctx.drawImage(this.gif.get_canvas(), 0, 0, width, height);
+        ctx.drawImage(this.subTextFabric.lowerCanvasEl, 0, 0, width, height);
+        gif.addFrame(canvas, { delay: this.delay });
         this.currentFrame++;
         if (this.currentFrame < this.allFrame) {
           setTimeout(() => {
             addFrame();
-          });
+          }, this.delay);
         } else {
           gif.render();
         }
       };
       addFrame();
 
+    },
+    closeGenerateModal() {
+      this.generateModalShow = false;
+      this.generateGif = null;
     },
     restart() {
       Object.assign(this.$data, this.$options.data());
@@ -372,6 +383,10 @@ export default {
 };
 </script>
 <style lang="less">
+    /*@keyframes title-animation {
+        0%{ background-position: 0 0;}
+        100% { background-position: -100% 0;}
+    }*/
     .pagehome {
         .container {
             width: 1250px;
@@ -380,6 +395,12 @@ export default {
             .title {
                 margin: 50px;
                 text-align: center;
+                font-size: 30px;
+                background-image: linear-gradient(180deg, #2d8cf0, #45ddff);
+                color: transparent;
+                background-clip: text;
+                /*background-size: 200% 100%;
+                animation: title-animation 4s infinite linear;*/
             }
             .upload {
                 width: 500px;
