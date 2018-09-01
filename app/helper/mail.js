@@ -25,7 +25,8 @@ module.exports = () => {
       // 设置邮件内容
       const subject = 'pkgif反馈';
       const html = `<p>内容：${options.content}</p>
-                    <p>反馈人邮件：${options.email || ''}</p>`;
+                    <p>反馈人邮件：${options.email || ''}</p>
+                    <p>反馈人ip：${options.ip}</p>`;
       const message = {
         from: `pkgif <${user}>`, // 发件地址
         to: user, // 收件列表
