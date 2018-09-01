@@ -405,9 +405,9 @@ export default {
       Object.assign(this.$data, this.$options.data());
     },
     submitFeedback() {
+      this.loading.feedback = true;
       const captcha = new window.TencentCaptcha('2089125366', res => {
         if (res.ret === 0) {
-          this.loading.feedback = true;
           const param = {
             ...this.feedbackInput,
             ticket: res.ticket,
@@ -418,11 +418,14 @@ export default {
             const result = res.data;
             if (result.status === 'SUCCEED') {
               this.feedbackInput = this.$options.data().feedbackInput;
-              this.$Message.success('发送成功');
+              this.$Message.success('发送成功，感谢您的反馈');
             }
           }).catch(() => {
             this.loading.feedback = false;
           });
+        } else {
+          this.$Message.warning('验证失败，请重新再试');
+          this.loading.feedback = false;
         }
       });
       captcha.show();
