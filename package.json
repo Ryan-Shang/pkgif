@@ -1,7 +1,7 @@
 {
-  "name": "woodenears-service",
-  "version": "1.2.0",
-  "description": "Evaluation information of electronic product parameters",
+  "name": "pkgif",
+  "version": "0.0.1",
+  "description": "pkgif",
   "engines": {
     "node": ">=8.9.0"
   },
@@ -9,9 +9,9 @@
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.dev.js --progress --inline --hot",
     "dev:server": "npm run lint && egg-bin dev",
     "build": "webpack --config webpack/webpack.prod.js --profile --progress --bail --display-error-details",
-    "startup:test": "egg-scripts start --daemon --title=egg-server-woodenears-service --env=test --port=8100",
-    "startup:prod": "egg-scripts start --daemon --title=egg-server-woodenears-service --env=prod --port=8100",
-    "stop": "egg-scripts stop --title=egg-server-woodenears-service",
+    "startup:test": "egg-scripts start --daemon --title=egg-server-pkgif --env=test --port=8100",
+    "startup:prod": "egg-scripts start --daemon --title=egg-server-pkgif --env=prod --port=8100",
+    "stop": "egg-scripts stop --title=egg-server-pkgif",
     "lint": "eslint --format node_modules/eslint-friendly-formatter ./app/",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",

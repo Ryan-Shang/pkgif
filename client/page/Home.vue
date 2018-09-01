@@ -9,7 +9,7 @@
                         type="drag"
                         action=""
                         :before-upload="uploadGif">
-                    <div style="padding: 20px 0">
+                    <div style="padding: 100px 0">
                         <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                         <p>上传GIF，或将其拖拽至此处</p>
                     </div>
@@ -215,6 +215,10 @@ export default {
       this.currentFrame = this.gif.get_current_frame();
     },
     uploadGif(file) {
+      if (file.type !== 'gif') {
+        this.$Message.warning('请上传 gif 图片');
+        return false;
+      }
       this.editReady = false;
       this.loading.upload = true;
       this.$Spin.show();

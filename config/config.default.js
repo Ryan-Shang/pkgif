@@ -1,6 +1,4 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
 module.exports = appInfo => {
   return {
     keys: appInfo.name + '_1521256564072_3999',
@@ -11,17 +9,6 @@ module.exports = appInfo => {
       csrf: {
         enable: false,
       },
-    },
-    // 静态资源
-    static: {
-      prefix: '',
-      maxAge: 365 * 24 * 60 * 60,
-      gzip: true,
-      usePrecompiledGzip: true,
-      dynamic: true,
-    },
-    siteFile: {
-      '/favicon.ico': '',
     },
     // ------local------
     // log
@@ -51,7 +38,6 @@ module.exports = appInfo => {
 
     // 全局配置
     global: {},
-    // protocol+host
     proxy: true,
   };
 };
