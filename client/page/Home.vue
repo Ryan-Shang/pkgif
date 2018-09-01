@@ -107,7 +107,7 @@
         </div>
         <footer>
             <p>给喜欢的GIF加上字幕</p>
-            <p>如果您有更好的意见或建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
+            <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
                 <Poptip width="300" placement="right">
                     <a>在线反馈</a>
                     <div slot="content">
