@@ -418,7 +418,10 @@ export default {
             const result = res.data;
             if (result.status === 'SUCCEED') {
               this.feedbackInput = this.$options.data().feedbackInput;
-              this.$Message.success('发送成功，感谢您的反馈');
+              this.$Message.success({
+                content: '发送成功，感谢您的反馈',
+                duration: 5,
+              });
             }
           }).catch(() => {
             this.loading.feedback = false;
