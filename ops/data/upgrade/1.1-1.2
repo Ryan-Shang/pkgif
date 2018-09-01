@@ -1,3 +1,0 @@
-db.articles.update({"isPublish":true}, {$set: {status:"publish"}}, {multi: 1})
-db.articles.update({"isPublish":false}, {$set: {status:"pending"}}, {multi: 1})
-db.articles.update({}, {$unset: {isPublish:""}},false, true)

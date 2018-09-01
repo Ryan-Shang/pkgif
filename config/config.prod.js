@@ -26,16 +26,6 @@ module.exports = () => {
       },
     },
     // 全局配置
-    global: {
-      qiniu: {
-        host: 'http://static.woodenears.com',
-      },
-    },
-    // protocol+host
-    phost: 'https://www.woodenears.com',
-    // swagger
-    swagger2: {
-      enable: false,
-    },
+    global: {},
   };
 };

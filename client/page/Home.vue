@@ -85,6 +85,8 @@
                                         <Checkbox v-model="addItem[currentAddItemIndex].isItalic"><i>I</i></Checkbox>
                                     </FormItem>
                                     <FormItem label="颜色">
+                                        <Input v-model="addItem[currentAddItemIndex].color"
+                                               style="width: 150px;"></Input>
                                         <ColorPicker v-model="addItem[currentAddItemIndex].color" recommend alpha/>
                                     </FormItem>
                                 </Form>
@@ -103,6 +105,26 @@
                 </div>
             </div>
         </div>
+        <footer>
+            <p>给喜欢的GIF加上字幕</p>
+            <p>如果您有更好的意见或建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
+                <Poptip width="300" placement="right">
+                    <a>在线反馈</a>
+                    <div slot="content">
+                        <div>
+                            <Input type="textarea" v-model="feedbackInput.content"
+                                   :autosize="{minRows: 2,maxRows: 5}" placeholder="内容，请少于200字"></Input>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <Input v-model="feedbackInput.email" placeholder="如果可以，请留下您的邮箱"></Input>
+                        </div>
+                        <Button @click="submitFeedback" long type="primary" :disabled="Boolean(feedbackInvalidMessage)"
+                                :title="feedbackInvalidMessage" :loading="loading.feedback">提交
+                        </Button>
+                    </div>
+                </Poptip>
+            </p>
+        </footer>
         <Modal
                 v-model="generateModalShow"
                 :mask-closable="false"
@@ -132,7 +154,7 @@ export default {
   data() {
     return {
       loading: {
-        upload: false,
+        feedback: false,
       },
       editReady: false,
       gif: null,
@@ -172,7 +194,23 @@ export default {
       delay: null,
       generateModalShow: false,
       generateGif: null,
+      feedbackInput: {
+        content: '',
+        email: '',
+      },
     };
+  },
+  computed: {
+    feedbackInvalidMessage() {
+      if (!this.feedbackInput.content) {
+        return '想跟我说什么呢';
+      } else if (this.feedbackInput.content.length > 200) {
+        return '太长啦消化不了啦，请少于200字喔';
+      } else if (this.feedbackInput.email && !/^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/.test(this.feedbackInput.email)) {
+        return '再检查一下邮箱格式呢';
+      }
+      return '';
+    },
   },
   watch: {
     currentFrame(val) {
@@ -220,7 +258,6 @@ export default {
         return false;
       }
       this.editReady = false;
-      this.loading.upload = true;
       this.$Spin.show();
       const reader = new FileReader();
       reader.onload = event => {
@@ -253,7 +290,6 @@ export default {
             this.addItem[ index ].left = target.left;
           },
         });
-        this.loading.upload = false;
         this.$Spin.hide();
         this.editReady = true;
         this.allFrame = this.gif.get_length() - 1;
@@ -272,7 +308,7 @@ export default {
         color: defaltColor,
         top: this.viewSize.height * 0.8,
         left: this.viewSize.width / 2,
-        fontSize: this.viewSize.width * this.viewSize.height / 1500,
+        fontSize: this.viewSize.width / 15,
         fontFamily: 'Microsoft YaHei',
         isBold: false,
         isItalic: false,
@@ -360,7 +396,6 @@ export default {
         }
       };
       addFrame();
-
     },
     closeGenerateModal() {
       this.generateModalShow = false;
@@ -368,6 +403,29 @@ export default {
     },
     restart() {
       Object.assign(this.$data, this.$options.data());
+    },
+    submitFeedback() {
+      const captcha = new window.TencentCaptcha('2089125366', res => {
+        if (res.ret === 0) {
+          this.loading.feedback = true;
+          const param = {
+            ...this.feedbackInput,
+            ticket: res.ticket,
+            randstr: res.randstr,
+          };
+          this.$axios.post('/feedback', param).then(res => {
+            this.loading.feedback = false;
+            const result = res.data;
+            if (result.status === 'SUCCEED') {
+              this.feedbackInput = this.$options.data().feedbackInput;
+              this.$Message.success('发送成功');
+            }
+          }).catch(() => {
+            this.loading.feedback = false;
+          });
+        }
+      });
+      captcha.show();
     },
   },
   created() {
@@ -390,14 +448,10 @@ export default {
 };
 </script>
 <style lang="less">
-    /*@keyframes title-animation {
-        0%{ background-position: 0 0;}
-        100% { background-position: -100% 0;}
-    }*/
     .pagehome {
         .container {
             width: 1250px;
-            margin: 0 auto 30px;
+            margin: 0 auto;
             position: relative;
             .title {
                 margin: 50px;
@@ -406,8 +460,6 @@ export default {
                 background-image: linear-gradient(180deg, #2d8cf0, #45ddff);
                 color: transparent;
                 background-clip: text;
-                /*background-size: 200% 100%;
-                animation: title-animation 4s infinite linear;*/
             }
             .upload {
                 width: 500px;
@@ -436,19 +488,6 @@ export default {
                     width: 600px;
                     margin: 20px auto 0;
                     position: relative;
-                    .timeline-slider {
-                        /*.vue-slider-dot {
-                            &::after {
-                                border-right: solid 1px #000;
-                                position: relative;
-                                left: -8px;
-                                top: 16px;
-                                display: block;
-                                height: 100%;
-                                content: "";
-                            }
-                        }*/
-                    }
                     .add-item {
                         margin-top: 40px;
                         .add-item-row {
@@ -474,6 +513,10 @@ export default {
                 width: 300px;
                 margin: 40px auto 0;
             }
+        }
+        footer {
+            margin: 20px 0 30px;
+            text-align: center;
         }
     }
 </style>

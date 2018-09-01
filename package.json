@@ -1,6 +1,6 @@
 {
   "name": "pkgif",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "pkgif",
   "engines": {
     "node": ">=8.9.0"
@@ -28,6 +28,7 @@
     "egg-validate": "^1.0.0",
     "fs-extra": "^7.0.0",
     "jsonwebtoken": "^8.2.1",
+    "nodemailer": "^4.6.8",
     "qiniu": "^7.1.5"
   },
   "devDependencies": {

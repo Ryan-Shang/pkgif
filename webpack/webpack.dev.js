@@ -22,9 +22,6 @@ module.exports = webpackMerge(commonConfig, {
     host: '127.0.0.1',
     port: 9010,
     proxy: {
-      '/public': {
-        target: 'http://127.0.0.1:7001',
-      },
       '/api': {
         target: 'http://127.0.0.1:7001',
       },

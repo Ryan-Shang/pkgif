@@ -4,7 +4,7 @@
 // exports.static = true;
 module.exports = {
   mongoose: {
-    enable: true,
+    enable: false,
     package: 'egg-mongoose',
   },
   validate: {
