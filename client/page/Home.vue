@@ -215,7 +215,7 @@ export default {
       this.currentFrame = this.gif.get_current_frame();
     },
     uploadGif(file) {
-      if (file.type !== 'gif') {
+      if (file.type !== 'image/gif') {
         this.$Message.warning('请上传 gif 图片');
         return false;
       }
