@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
  * @param options({
  *  content, 内容
  *  email, 反馈人邮件
+ *  ip, 反馈人ip
  * })
  * @return {Promise<any>}
  */

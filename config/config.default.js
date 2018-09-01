@@ -35,7 +35,6 @@ module.exports = appInfo => {
         },
       },
     },
-
     // 全局配置
     global: {},
     proxy: true,
