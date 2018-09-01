@@ -248,8 +248,9 @@ export default {
         this.subTextFabric.on({
           'object:modified': e => {
             const target = e.target;
-            this.addItem[ this.currentAddItemIndex ].top = target.top;
-            this.addItem[ this.currentAddItemIndex ].left = target.left;
+            const index = target.index;
+            this.addItem[ index ].top = target.top;
+            this.addItem[ index ].left = target.left;
           },
         });
         this.loading.upload = false;
@@ -293,7 +294,8 @@ export default {
     },
     renderText() {
       this.subTextFabric.clear();
-      for (const item of this.addItem) {
+      for (let i = 0; i < this.addItem.length; i++) {
+        const item = this.addItem[ i ];
         if (item.frameRange[ 0 ] <= this.currentFrame && item.frameRange[ 1 ] >= this.currentFrame) {
           const Text = new fabric.Text(item.text, {
             top: item.top,
@@ -307,6 +309,7 @@ export default {
             originY: 'center',
             originX: 'center',
             borderColor: '#000',
+            index: i,
             /* cornerColor: '#2d8cf0',
             cornerSize: 8,
             transparentCorners: false,
