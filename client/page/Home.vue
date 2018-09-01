@@ -108,7 +108,7 @@
         <footer>
             <p>给喜欢的GIF加上字幕</p>
             <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
-                <Poptip width="300" placement="right">
+                <Poptip width="300" placement="right" v-model="feedbackPopTipShow">
                     <a>在线反馈</a>
                     <div slot="content">
                         <div>
@@ -194,6 +194,7 @@ export default {
       delay: null,
       generateModalShow: false,
       generateGif: null,
+      feedbackPopTipShow: false,
       feedbackInput: {
         content: '',
         email: '',
@@ -417,6 +418,7 @@ export default {
             this.loading.feedback = false;
             const result = res.data;
             if (result.status === 'SUCCEED') {
+              this.feedbackPopTipShow = false;
               this.feedbackInput = this.$options.data().feedbackInput;
               this.$Message.success({
                 content: '发送成功，感谢您的反馈',
