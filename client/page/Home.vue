@@ -9,7 +9,7 @@
                         type="drag"
                         action=""
                         :before-upload="uploadGif">
-                    <div style="padding: 100px 0">
+                    <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                         <p>上传GIF，或将其拖拽至此处</p>
                     </div>
@@ -58,7 +58,8 @@
                             </div>
                             <Button icon="md-add" @click="pushAddItem">添加字幕</Button>
                         </div>
-                        <Card class="add-item-option" v-if="currentAddItemIndex !== null" :bordered="false">
+                        <Card :class="{'center':mobileCenterAddItemOption}" class="add-item-option"
+                              v-if="currentAddItemIndex !== null" :bordered="false">
                             <p slot="title">
                                 <Icon type="ios-film-outline"></Icon>
                                 字幕设置
@@ -91,6 +92,11 @@
                                     </FormItem>
                                 </Form>
                             </div>
+                            <div class="add-item-option-toggle"
+                                 @click="mobileCenterAddItemOption = !mobileCenterAddItemOption">
+                                <Icon :type="mobileCenterAddItemOption ? 'ios-arrow-back' : 'ios-arrow-forward'"
+                                      size="16"/>
+                            </div>
                         </Card>
                     </div>
                 </div>
@@ -106,7 +112,7 @@
             </div>
         </div>
         <footer>
-            <p>给喜欢的GIF加上字幕</p>
+            <p>给喜欢的GIF加上字幕，请使用chrome、firefox，或极速模式下的360、QQ等浏览器</p>
             <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
                 <Poptip width="300" placement="right" v-model="feedbackPopTipShow">
                     <a>在线反馈</a>
@@ -199,6 +205,7 @@ export default {
         content: '',
         email: '',
       },
+      mobileCenterAddItemOption: false,
     };
   },
   computed: {
@@ -472,6 +479,9 @@ export default {
             .upload {
                 width: 500px;
                 margin: 0 auto;
+                .upload-area {
+                    padding: 100px 0;
+                }
             }
             .view {
                 margin-top: 5px;
@@ -514,6 +524,9 @@ export default {
                         position: absolute;
                         top: 0;
                         left: -320px;
+                        .add-item-option-toggle {
+                            display: none;
+                        }
                     }
                 }
             }
@@ -523,8 +536,63 @@ export default {
             }
         }
         footer {
-            margin: 20px 0 30px;
+            width: 1250px;
+            margin: 20px auto 30px;
             text-align: center;
+        }
+    }
+
+    @media screen and (max-width: 1024px) {
+        .pagehome {
+            .container {
+                width: 95vw;
+                .upload {
+                    width: 100%;
+                    height: 30vh;
+                    .upload-area {
+                        padding: 10vh 0;
+                    }
+                }
+                .operation {
+                    width:100%;
+                    .timeline {
+                        width: 85vw;
+                        .add-item {
+                            .add-item-row {
+                                margin-bottom: 20px;
+                                .action {
+                                    right: 2px;
+                                    top: -26px;
+                                }
+                            }
+                        }
+                        .add-item-option {
+                            z-index: 6;
+                            &.center {
+                                left: 0;
+                            }
+                            .add-item-option-toggle {
+                                border-bottom-right-radius: 8px;
+                                border-top-right-radius: 8px;
+                                border: solid 1px #e6e6e6;
+                                border-left: 0;
+                                width: 30px;
+                                height: 30px;
+                                line-height: 30px;
+                                text-align: center;
+                                position: absolute;
+                                left: 300px;
+                                top: 280px;
+                                display: block;
+                                background-color: #fff;
+                            }
+                        }
+                    }
+                }
+            }
+            footer {
+                width: 90vw;
+            }
         }
     }
 </style>
