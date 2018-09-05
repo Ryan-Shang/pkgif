@@ -65,25 +65,29 @@
                                 字幕设置
                             </p>
                             <div>
-                                <Form :label-width="40">
+                                <Form :label-width="40" inline>
                                     <FormItem label="内容">
-                                        <Input v-model="addItem[currentAddItemIndex].text"></Input>
+                                        <Input v-model="addItem[currentAddItemIndex].text"
+                                               style="width: 220px;"></Input>
                                     </FormItem>
                                     <FormItem label="字体">
-                                        <Select v-model="addItem[currentAddItemIndex].fontFamily">
+                                        <Select v-model="addItem[currentAddItemIndex].fontFamily"
+                                                style="width: 140px;margin-right:8px">
                                             <Option v-for="(item,key) in fontFamilyList" :value="key" :key="key">
                                                 {{item}}
                                             </Option>
                                         </Select>
-                                    </FormItem>
-                                    <FormItem label="大小">
-                                        <InputNumber v-model="addItem[currentAddItemIndex].fontSize"
-                                                     :min="0"></InputNumber>
-                                    </FormItem>
-                                    <FormItem label="样式">
                                         <Checkbox v-model="addItem[currentAddItemIndex].isBold"><strong>B</strong>
                                         </Checkbox>
                                         <Checkbox v-model="addItem[currentAddItemIndex].isItalic"><i>I</i></Checkbox>
+                                    </FormItem>
+                                    <FormItem label="大小">
+                                        <InputNumber v-model="addItem[currentAddItemIndex].fontSize"
+                                                     :min="0" style="width: 80px;"></InputNumber>
+                                    </FormItem>
+                                    <FormItem label="角度">
+                                        <InputNumber v-model="addItem[currentAddItemIndex].angle"
+                                                     :min="0" :step="10" style="width: 80px;"></InputNumber>
                                     </FormItem>
                                     <FormItem label="颜色">
                                         <Input v-model="addItem[currentAddItemIndex].color"
@@ -320,6 +324,7 @@ export default {
         fontFamily: 'Microsoft YaHei',
         isBold: false,
         isItalic: false,
+        angle: 0,
       };
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
@@ -349,6 +354,7 @@ export default {
             fontFamily: item.fontFamily,
             fontWeight: item.isBold ? 'bold' : 'normal',
             fontStyle: item.isItalic ? 'italic' : 'normal',
+            angle: item.angle,
             hasControls: false,
             originY: 'center',
             originX: 'center',
@@ -554,7 +560,7 @@ export default {
                     }
                 }
                 .operation {
-                    width:100%;
+                    width: 100%;
                     .timeline {
                         width: 85vw;
                         .add-item {
