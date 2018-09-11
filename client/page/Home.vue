@@ -139,9 +139,11 @@
                 v-model="generateModalShow"
                 :mask-closable="false"
                 @on-cancel="closeGenerateModal"
+                :width="viewSize.width+50"
                 title="生成成功">
-            <div style="text-align: center">
+            <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
+                <p style="margin-top: 10px;">注意：因浏览器权限原因，无法直接复制出去，请右键图片另存为保存至本地</p>
             </div>
             <div slot="footer">
                 <Button @click="closeGenerateModal">关闭</Button>
@@ -279,11 +281,12 @@ export default {
       return false;
     },
     init(data) {
+      const width = document.querySelector('.container').offsetWidth;
       this.gif = new SuperGif({
         container: this.$refs.gifBox,
         auto_play: 0,
         loop_mode: false,
-        max_width: 1250,
+        max_width: width,
         on_end: () => {
           this.playing = false;
         },
@@ -379,13 +382,9 @@ export default {
       });
 
       gif.on('finished', blob => {
-        const reader = new FileReader();
-        reader.onload = event => {
-          this.$Spin.hide();
-          this.generateGif = event.target.result;
-          this.generateModalShow = true;
-        };
-        reader.readAsDataURL(blob);
+        this.$Spin.hide();
+        this.generateGif = URL.createObjectURL(blob);
+        this.generateModalShow = true;
       });
 
       this.toBegin();
@@ -551,7 +550,7 @@ export default {
     @media screen and (max-width: 1024px) {
         .pagehome {
             .container {
-                width: 95vw;
+                width: 92vw;
                 .upload {
                     width: 100%;
                     height: 30vh;
