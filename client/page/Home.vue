@@ -56,7 +56,8 @@
                                     </a>
                                 </div>
                             </div>
-                            <Button icon="md-add" @click="pushAddItem">添加字幕</Button>
+                            <Button icon="md-add" @click="pushAddItemText">添加字幕</Button>
+                            <Button icon="md-add" @click="pushAddItemBlock">添加色块</Button>
                         </div>
                         <Card :class="{'center':mobileCenterAddItemOption}" class="add-item-option"
                               v-if="currentAddItemIndex !== null" :bordered="false">
@@ -143,7 +144,7 @@
                 title="生成成功">
             <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
-                <p style="margin-top: 10px;">注意：因浏览器权限原因，无法直接复制出去，请右键图片另存为保存至本地</p>
+                <p style="margin-top: 10px;">注意：由于权限问题，大部分浏览器无法直接复制出去，请右键图片另存为保存至本地</p>
             </div>
             <div slot="footer">
                 <Button @click="closeGenerateModal">关闭</Button>
@@ -315,9 +316,10 @@ export default {
         this.toBegin();
       });
     },
-    pushAddItem() {
+    pushAddItemText() {
       const defaltColor = 'rgba(255,255,255,1)';
       const newAddItem = {
+        type: 'text',
         frameRange: [ this.currentFrame, this.allFrame ],
         text: '输入文字',
         color: defaltColor,
@@ -328,6 +330,23 @@ export default {
         isBold: false,
         isItalic: false,
         angle: 0,
+      };
+      const length = this.addItem.push(newAddItem);
+      this.currentAddItemIndex = length - 1;
+    },
+    pushAddItemBlock() {
+      const defaltColor = 'rgba(255,255,255,1)';
+      const newAddItem = {
+        type: 'block',
+        frameRange: [ this.currentFrame, this.allFrame ],
+        color: defaltColor,
+        top: this.viewSize.height * 0.8,
+        left: this.viewSize.width / 2,
+        left:100,//距离画布左侧的距离，单位是像素
+        top:100,//距离画布上边的距离
+        fill:'red',//填充的颜色
+        width:30,//方形的宽度
+        height:30//方形的高度
       };
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
@@ -349,26 +368,54 @@ export default {
       for (let i = 0; i < this.addItem.length; i++) {
         const item = this.addItem[ i ];
         if (item.frameRange[ 0 ] <= this.currentFrame && item.frameRange[ 1 ] >= this.currentFrame) {
-          const Text = new fabric.Text(item.text, {
-            top: item.top,
-            left: item.left,
-            fill: item.color,
-            fontSize: item.fontSize,
-            fontFamily: item.fontFamily,
-            fontWeight: item.isBold ? 'bold' : 'normal',
-            fontStyle: item.isItalic ? 'italic' : 'normal',
-            angle: item.angle,
-            hasControls: false,
-            originY: 'center',
-            originX: 'center',
-            borderColor: '#000',
-            index: i,
-            /* cornerColor: '#2d8cf0',
-            cornerSize: 8,
-            transparentCorners: false,
-            centeredScaling: true,*/
-          });
-          this.subTextFabric.add(Text);
+          let fabricItem;
+          switch (item.type) {
+            case 'text':
+              fabricItem = new fabric.Text(item.text, {
+                top: item.top,
+                left: item.left,
+                fill: item.color,
+                fontSize: item.fontSize,
+                fontFamily: item.fontFamily,
+                fontWeight: item.isBold ? 'bold' : 'normal',
+                fontStyle: item.isItalic ? 'italic' : 'normal',
+                angle: item.angle,
+                hasControls: false,
+                originY: 'center',
+                originX: 'center',
+                borderColor: '#000',
+                index: i,
+                /* cornerColor: '#2d8cf0',
+                cornerSize: 8,
+                transparentCorners: false,
+                centeredScaling: true,*/
+              });
+              break;
+            case 'block':
+              fabricItem = new fabric.Text(item.text, {
+                top: item.top,
+                left: item.left,
+                fill: item.color,
+                fontSize: item.fontSize,
+                fontFamily: item.fontFamily,
+                fontWeight: item.isBold ? 'bold' : 'normal',
+                fontStyle: item.isItalic ? 'italic' : 'normal',
+                angle: item.angle,
+                hasControls: false,
+                originY: 'center',
+                originX: 'center',
+                borderColor: '#000',
+                index: i,
+                /* cornerColor: '#2d8cf0',
+                cornerSize: 8,
+                transparentCorners: false,
+                centeredScaling: true,*/
+              });
+              break;
+            default:
+              fabricItem = null;
+          }
+          this.subTextFabric.add(fabricItem);
         }
       }
     },
