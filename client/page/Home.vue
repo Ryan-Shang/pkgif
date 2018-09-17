@@ -45,7 +45,11 @@
                                             :max="allFrame"
                                             v-bind="addItemSliderOption">
                                     </vue-slider>
-                                    <span>{{item.text}}</span>
+                                    <p>
+                                        <Icon :type="item.type === 'text' ? 'ios-text-outline' : 'md-square'"
+                                              size="16"/>
+                                        <span>{{item.text}}</span>
+                                    </p>
                                 </div>
                                 <div class="action">
                                     <a href="javascript:void(0)" @click="removeAddItem(index)">
@@ -56,36 +60,39 @@
                                     </a>
                                 </div>
                             </div>
-                            <Button icon="md-add" @click="pushAddItemText">添加字幕</Button>
-                            <Button icon="md-add" @click="pushAddItemBlock">添加色块</Button>
+                            <Button icon="ios-text-outline" @click="pushAddItemText">添加字幕</Button>
+                            <Button icon="md-square" @click="pushAddItemBlock">添加色块</Button>
                         </div>
                         <Card :class="{'center':mobileCenterAddItemOption}" class="add-item-option"
                               v-if="currentAddItemIndex !== null" :bordered="false">
                             <p slot="title">
-                                <Icon type="ios-film-outline"></Icon>
-                                字幕设置
+                                <Icon type="md-settings"/>
+                                {{addItemOptionModalTitle}}
                             </p>
                             <div>
                                 <Form :label-width="40" inline>
-                                    <FormItem label="内容">
-                                        <Input v-model="addItem[currentAddItemIndex].text"
-                                               style="width: 220px;"></Input>
-                                    </FormItem>
-                                    <FormItem label="字体">
-                                        <Select v-model="addItem[currentAddItemIndex].fontFamily"
-                                                style="width: 140px;margin-right:8px">
-                                            <Option v-for="(item,key) in fontFamilyList" :value="key" :key="key">
-                                                {{item}}
-                                            </Option>
-                                        </Select>
-                                        <Checkbox v-model="addItem[currentAddItemIndex].isBold"><strong>B</strong>
-                                        </Checkbox>
-                                        <Checkbox v-model="addItem[currentAddItemIndex].isItalic"><i>I</i></Checkbox>
-                                    </FormItem>
-                                    <FormItem label="大小">
-                                        <InputNumber v-model="addItem[currentAddItemIndex].fontSize"
-                                                     :min="0" style="width: 80px;"></InputNumber>
-                                    </FormItem>
+                                    <template v-if="addItem[currentAddItemIndex].type === 'text'">
+                                        <FormItem label="内容">
+                                            <Input v-model="addItem[currentAddItemIndex].text"
+                                                   style="width: 220px;"></Input>
+                                        </FormItem>
+                                        <FormItem label="字体">
+                                            <Select v-model="addItem[currentAddItemIndex].fontFamily"
+                                                    style="width: 140px;margin-right:8px">
+                                                <Option v-for="(item,key) in fontFamilyList" :value="key" :key="key">
+                                                    {{item}}
+                                                </Option>
+                                            </Select>
+                                            <Checkbox v-model="addItem[currentAddItemIndex].isBold"><strong>B</strong>
+                                            </Checkbox>
+                                            <Checkbox v-model="addItem[currentAddItemIndex].isItalic"><i>I</i>
+                                            </Checkbox>
+                                        </FormItem>
+                                        <FormItem label="大小">
+                                            <InputNumber v-model="addItem[currentAddItemIndex].fontSize"
+                                                         :min="0" style="width: 80px;"></InputNumber>
+                                        </FormItem>
+                                    </template>
                                     <FormItem label="角度">
                                         <InputNumber v-model="addItem[currentAddItemIndex].angle"
                                                      :min="0" :step="10" style="width: 80px;"></InputNumber>
@@ -144,7 +151,8 @@
                 title="生成成功">
             <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
-                <p style="margin-top: 10px;">注意：由于权限问题，大部分浏览器无法直接复制出去，请右键图片另存为保存至本地</p>
+                <p style="margin-top: 10px;">注意：由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去，请右键<strong>图片另存为</strong>保存至本地
+                </p>
             </div>
             <div slot="footer">
                 <Button @click="closeGenerateModal">关闭</Button>
@@ -226,6 +234,13 @@ export default {
       }
       return '';
     },
+    addItemOptionModalTitle() {
+      const map = {
+        text: '字幕设置',
+        block: '色块设置',
+      };
+      return map[ this.addItem[ this.currentAddItemIndex ].type ];
+    },
   },
   watch: {
     currentFrame(val) {
@@ -304,6 +319,9 @@ export default {
             const index = target.index;
             this.addItem[ index ].top = target.top;
             this.addItem[ index ].left = target.left;
+            this.addItem[ index ].angle = target.angle;
+            this.addItem[ index ].width = target.width * target.scaleX;
+            this.addItem[ index ].height = target.height * target.scaleY;
           },
         });
         this.$Spin.hide();
@@ -323,7 +341,7 @@ export default {
         frameRange: [ this.currentFrame, this.allFrame ],
         text: '输入文字',
         color: defaltColor,
-        top: this.viewSize.height * 0.8,
+        top: this.viewSize.height * 0.85,
         left: this.viewSize.width / 2,
         fontSize: this.viewSize.width / 15,
         fontFamily: 'Microsoft YaHei',
@@ -335,18 +353,16 @@ export default {
       this.currentAddItemIndex = length - 1;
     },
     pushAddItemBlock() {
-      const defaltColor = 'rgba(255,255,255,1)';
+      const defaltColor = 'rgba(0,0,0,1)';
       const newAddItem = {
         type: 'block',
         frameRange: [ this.currentFrame, this.allFrame ],
+        top: this.viewSize.height * 0.9,
+        left: this.viewSize.width * 0.5,
         color: defaltColor,
-        top: this.viewSize.height * 0.8,
-        left: this.viewSize.width / 2,
-        left:100,//距离画布左侧的距离，单位是像素
-        top:100,//距离画布上边的距离
-        fill:'red',//填充的颜色
-        width:30,//方形的宽度
-        height:30//方形的高度
+        width: this.viewSize.width,
+        height: this.viewSize.height * 0.2,
+        angle: 0,
       };
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
@@ -392,24 +408,21 @@ export default {
               });
               break;
             case 'block':
-              fabricItem = new fabric.Text(item.text, {
+              fabricItem = new fabric.Rect({
                 top: item.top,
                 left: item.left,
+                width: item.width,
+                height: item.height,
                 fill: item.color,
-                fontSize: item.fontSize,
-                fontFamily: item.fontFamily,
-                fontWeight: item.isBold ? 'bold' : 'normal',
-                fontStyle: item.isItalic ? 'italic' : 'normal',
                 angle: item.angle,
-                hasControls: false,
                 originY: 'center',
                 originX: 'center',
                 borderColor: '#000',
                 index: i,
-                /* cornerColor: '#2d8cf0',
+                cornerColor: '#2d8cf0',
                 cornerSize: 8,
                 transparentCorners: false,
-                centeredScaling: true,*/
+                centeredScaling: true,
               });
               break;
             default:
@@ -619,6 +632,9 @@ export default {
                             }
                         }
                         .add-item-option {
+                            position: fixed;
+                            top: 40vh;
+                            left: -296px;
                             z-index: 6;
                             &.center {
                                 left: 0;
@@ -634,7 +650,7 @@ export default {
                                 text-align: center;
                                 position: absolute;
                                 left: 300px;
-                                top: 280px;
+                                top: 50px;
                                 display: block;
                                 background-color: #fff;
                             }
