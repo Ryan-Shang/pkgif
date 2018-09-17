@@ -141,6 +141,7 @@
                         </Button>
                     </div>
                 </Poptip>
+                。感谢您的反馈！
             </p>
         </footer>
         <Modal
@@ -151,7 +152,7 @@
                 title="生成成功">
             <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
-                <p style="margin-top: 10px;">注意：由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去，请右键<strong>图片另存为</strong>保存至本地
+                <p style="margin-top: 10px;">由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去，请右键<strong>图片另存为</strong>保存至本地
                 </p>
             </div>
             <div slot="footer">
