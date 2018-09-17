@@ -634,7 +634,7 @@ export default {
                         }
                         .add-item-option {
                             position: fixed;
-                            top: 40vh;
+                            top: 8vh;
                             left: -296px;
                             z-index: 6;
                             &.center {
