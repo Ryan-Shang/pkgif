@@ -26,6 +26,7 @@
                         <Button :icon="playing ? 'md-pause' : 'md-play'" @click="playAndPause"
                                 :title="(playing ? '暂停' : '播放')+'（Space）'"></Button>
                         <Button icon="md-skip-forward" @click="nextOne" title="向后一帧（D）"></Button>
+                        <Button icon="md-repeat" @click="reverse" title="反转"></Button>
                     </div>
                     <div class="timeline">
                         <div style="text-align: center;font-size:18px">{{currentFrame}} / {{allFrame}}</div>
@@ -35,31 +36,38 @@
                                     v-bind="timeLineSliderOption">
                         </vue-slider>
                         <div class="add-item">
-                            <div v-for="(item,index) in addItem" class="add-item-row" :key="index">
-                                <div @click="selectAddItem(index)">
-                                    <vue-slider
-                                            style="margin-top:10px"
-                                            :disabled="currentAddItemIndex !== index"
-                                            :key="index"
-                                            v-model="item.frameRange"
-                                            :max="allFrame"
-                                            v-bind="addItemSliderOption">
-                                    </vue-slider>
-                                    <p>
-                                        <Icon :type="item.type === 'text' ? 'ios-text-outline' : 'md-square'"
-                                              size="16"/>
-                                        <span>{{item.text}}</span>
-                                    </p>
+                            <draggable v-model="addItem" :options="{handle:'.drag-btn'}" @end="dragEnd">
+                                <div v-for="(item,index) in addItem" class="add-item-row" :key="index">
+                                    <div @click="selectAddItem(index)">
+                                        <vue-slider
+                                                style="margin-top:10px"
+                                                :disabled="currentAddItemIndex !== index"
+                                                :key="index"
+                                                v-model="item.frameRange"
+                                                :max="allFrame"
+                                                v-bind="addItemSliderOption">
+                                        </vue-slider>
+                                        <p>
+                                            <Icon :type="item.type === 'text' ? 'ios-text-outline' : 'md-square'"
+                                                  size="16"/>
+                                            <span>{{item.text}}</span>
+                                        </p>
+                                    </div>
+                                    <div class="action">
+                                        <a class="drag-btn">
+                                            <Icon size="18" type="md-move" title="移动图层顺序"/>
+                                        </a>
+                                        <a style="margin-left: 8px;" href="javascript:void(0)"
+                                           @click="removeAddItem(index)">
+                                            <Icon size="18" type="md-close" title="删除"/>
+                                        </a>
+                                        <a style="margin-left: 8px;" href="javascript:void(0)"
+                                           @click="copyAddItem(index)">
+                                            <Icon size="18" type="md-copy" title="拷贝"/>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="action">
-                                    <a href="javascript:void(0)" @click="removeAddItem(index)">
-                                        <Icon size="18" type="md-close" title="删除"/>
-                                    </a>
-                                    <a style="margin-left: 8px;" href="javascript:void(0)" @click="copyAddItem(index)">
-                                        <Icon size="18" type="md-copy" title="拷贝"/>
-                                    </a>
-                                </div>
-                            </div>
+                            </draggable>
                             <Button icon="ios-text-outline" @click="pushAddItemText">添加字幕</Button>
                             <Button icon="md-square" @click="pushAddItemBlock">添加色块</Button>
                         </div>
@@ -164,14 +172,16 @@
 
 <script>
 import vueSlider from 'vue-slider-component';
-
-const fabric = require('fabric').fabric;
+import draggable from 'vuedraggable';
 import SuperGif from '../helper/libgif';
 import GIF from 'gif.js.optimized';
+
+const fabric = require('fabric').fabric;
 
 export default {
   components: {
     vueSlider,
+    draggable,
   },
   data() {
     return {
@@ -283,6 +293,9 @@ export default {
       this.gif.move_relative(1);
       this.currentFrame = this.gif.get_current_frame();
     },
+    reverse() {
+      this.gif.reverse();
+    },
     uploadGif(file) {
       if (file.type !== 'image/gif') {
         this.$Message.warning('请上传 gif 图片');
@@ -368,6 +381,9 @@ export default {
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
     },
+    dragEnd(event) {
+      this.currentAddItemIndex = event.newIndex;
+    },
     selectAddItem(index) {
       this.currentAddItemIndex = index;
     },
@@ -402,6 +418,7 @@ export default {
                 originX: 'center',
                 borderColor: '#000',
                 index: i,
+                zIndex: i,
                 /* cornerColor: '#2d8cf0',
                 cornerSize: 8,
                 transparentCorners: false,
@@ -424,6 +441,7 @@ export default {
                 cornerSize: 8,
                 transparentCorners: false,
                 centeredScaling: true,
+                zIndex: i,
               });
               break;
             default:
@@ -579,7 +597,7 @@ export default {
                             position: relative;
                             .action {
                                 position: absolute;
-                                right: -70px;
+                                right: -84px;
                                 top: 0;
                             }
 

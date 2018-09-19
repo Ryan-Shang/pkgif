@@ -324,7 +324,7 @@ const parseGIF = (st, handler) => {
         break;
       case ';':
         block.type = 'eof';
-        handler.eof && handler.eof(block);
+        handler.eof && handler.eof();
         break;
       default:
         throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
@@ -751,6 +751,10 @@ class SuperGif {
           i = frame_idx;
           putFrame();
         },
+        reverse() {
+          frames.reverse();
+          handler.eof(true);
+        }
       };
     }());
 
@@ -783,9 +787,10 @@ class SuperGif {
         NETSCAPE: withProgress(doNothing),
       },
       img: withProgress(doImg, true),
-      eof(block) {
-        // toolbar.style.display = '';
-        pushFrame();
+      eof(isNotInit) {
+        if (!isNotInit) {
+          pushFrame(); // 少push一个frame
+        }
         doDecodeProgress(false);
         if (!(options.c_w && options.c_h)) {
           canvas.width = hdr.width * get_canvas_scale();
@@ -868,6 +873,7 @@ class SuperGif {
       pause: player.pause,
       move_relative: player.move_relative,
       move_to: player.move_to,
+      reverse: player.reverse,
 
       // getters for instance vars
       get_playing() {
