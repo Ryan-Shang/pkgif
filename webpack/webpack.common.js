@@ -106,8 +106,8 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: [ 'vue-app' ],
-            plugins: [ require('babel-plugin-transform-runtime'), require('babel-plugin-syntax-dynamic-import') ],
+            presets: [ '@babel/preset-env' ],
+            plugins: [ '@babel/plugin-transform-runtime', '@babel/plugin-syntax-dynamic-import' ],
           },
         },
       },

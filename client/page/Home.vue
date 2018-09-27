@@ -160,7 +160,9 @@
                 title="生成成功">
             <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
-                <p style="margin-top: 10px;">由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去，请右键<strong>图片另存为</strong>保存至本地
+                <p style="margin-top: 10px;">由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去
+                <p style="margin-top: 2px;">请 <strong>右键图片另存为</strong> 或
+                    <a :href="generateGif" download="pk.gif">直接下载</a>
                 </p>
             </div>
             <div slot="footer">
