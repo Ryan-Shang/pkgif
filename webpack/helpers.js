@@ -1,8 +1,8 @@
 'use strict';
 const path = require('path');
 
-const root = () => {
-  return path.join(process.cwd(), ...arguments);
+const root = arg => {
+  return path.join(process.cwd(), arg);
 };
 
 module.exports = {

@@ -42,10 +42,6 @@ module.exports = webpackMerge(commonConfig, {
       // Required - The path to the webpack-outputted app to prerender.
       staticDir: helpers.root('webapp'),
 
-      // Optional - The path your rendered app should be output to.
-      // (Defaults to staticDir.)
-      outputDir: helpers.root('prerendered'),
-
       // Optional - The location of index.html
       indexPath: helpers.root('webapp/index.html'),
 
@@ -62,19 +58,6 @@ module.exports = webpackMerge(commonConfig, {
       //   html: String, // The rendered HTML for this route.
       //   outputPath: String // The path the rendered HTML will be written to.
       // }
-      postProcess(renderedRoute) {
-        // Ignore any redirects.
-        renderedRoute.route = renderedRoute.originalPath;
-        // Basic whitespace removal. (Don't use this in production.)
-        renderedRoute.html = renderedRoute.html.split(/>[\s]+</gmi).join('><');
-        // Remove /index.html from the output path if the dir name ends with a .html file extension.
-        // For example: /dist/dir/special.html/index.html -> /dist/dir/special.html
-        if (renderedRoute.route.endsWith('.html')) {
-          renderedRoute.outputPath = path.join(__dirname, 'webapp', renderedRoute.route);
-        }
-
-        return renderedRoute;
-      },
 
       // Optional - Uses html-minifier (https://github.com/kangax/html-minifier)
       // To minify the resulting HTML.
@@ -87,11 +70,11 @@ module.exports = webpackMerge(commonConfig, {
         sortAttributes: true,
       },
 
-      // Server configuration options.
+      /* // Server configuration options.
       server: {
         // Normally a free port is autodetected, but feel free to set this if needed.
         port: 8001,
-      },
+      },*/
 
       // The actual renderer to use. (Feel free to write your own)
       // Available renderers: https://github.com/Tribex/prerenderer/tree/master/renderers
@@ -110,10 +93,10 @@ module.exports = webpackMerge(commonConfig, {
 
         // Optional - Wait to render until the specified event is dispatched on the document.
         // eg, with `document.dispatchEvent(new Event('custom-render-trigger'))`
-        renderAfterDocumentEvent: 'custom-render-trigger',
+        renderAfterDocumentEvent: 'render-event',
 
         // Optional - Wait to render until the specified element is detected using `document.querySelector`
-        renderAfterElementExists: 'my-app-element',
+        renderAfterElementExists: 'app',
 
         // Optional - Wait to render until a certain amount of time has passed.
         // NOT RECOMMENDED

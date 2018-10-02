@@ -156,7 +156,7 @@
                 v-model="generateModalShow"
                 :mask-closable="false"
                 @on-cancel="closeGenerateModal"
-                :width="viewSize.width+50"
+                :width="viewSize.width + 50 > 400 ? viewSize.width + 50 : 400"
                 title="生成成功">
             <div style="text-align: center;overflow-x: auto">
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
@@ -628,7 +628,7 @@ export default {
         }
     }
 
-    @media screen and (max-width: 1024px) {
+    @media screen and (max-width: 1250px) {
         .pagehome {
             .container {
                 width: 92vw;
