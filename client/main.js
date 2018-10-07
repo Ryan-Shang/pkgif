@@ -13,6 +13,7 @@ Vue.use(VueRouter);
 Vue.prototype.$axios = axios;
 
 const router = new VueRouter({
+  mode: 'history',
   routes,
 });
 
