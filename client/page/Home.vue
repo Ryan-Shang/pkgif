@@ -8,6 +8,7 @@
                 <Upload
                         type="drag"
                         action=""
+                        accept="image/gif"
                         :before-upload="uploadGif">
                     <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
