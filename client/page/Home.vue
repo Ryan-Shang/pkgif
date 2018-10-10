@@ -152,9 +152,15 @@
                 </Poptip>
                 。感谢您的反馈！
             </p>
-            <p style="margin-top: 20px;"><span>pkgif v{{packageJsonVersion}} ©2018 Caandoll</span><a href="http://www.miibeian.gov.cn" target="_blank" style="margin-left: 10px;">蜀ICP备18003246号-1</a>
+            <p style="margin-top: 20px;">
+                <span>pkgif <a href="javascript:void(0)"
+                               @click="releaseMDShow = true">v{{packageJsonVersion}}</a></span>
+                <span style="margin-left: 10px;">©2018 Caandoll <a href="http://www.miibeian.gov.cn" target="_blank">蜀ICP备18003246号-1</a></span>
             </p>
         </footer>
+        <Drawer :width="300" :closable="false" v-model="releaseMDShow" class="md-box">
+            <div v-html="releaseMD"></div>
+        </Drawer>
         <Modal
                 v-model="generateModalShow"
                 :mask-closable="false"
@@ -181,6 +187,7 @@ import draggable from 'vuedraggable';
 import SuperGif from '../helper/libgif';
 import GIF from 'gif.js.optimized';
 import pkg from '../../package';
+import releaseMD from '../../RELEASE.md';
 
 const fabric = require('fabric').fabric;
 
@@ -191,6 +198,8 @@ export default {
   },
   data() {
     return {
+      releaseMD,
+      releaseMDShow: false,
       packageJsonVersion: pkg.version,
       loading: {
         feedback: false,
@@ -400,6 +409,10 @@ export default {
     },
     copyAddItem(index) {
       const newAddItem = JSON.parse(JSON.stringify(this.addItem[ index ]));
+      if (newAddItem.frameRange[ 1 ] < this.allFrame) { // 如果该项尾帧不是整个GIF结尾，那么使他接着母项的帧数播放
+        newAddItem.frameRange[ 0 ] = newAddItem.frameRange[ 1 ] + 1;
+        newAddItem.frameRange[ 1 ] = this.allFrame;
+      }
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
     },
@@ -630,6 +643,12 @@ export default {
             width: 1250px;
             margin: 20px auto 30px;
             text-align: center;
+        }
+    }
+
+    .md-box {
+        .ivu-drawer-body {
+            padding-left: 24px;
         }
     }
 

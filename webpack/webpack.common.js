@@ -6,6 +6,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const helpers = require('./helpers');
 const { VueLoaderPlugin } = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const marked = require('marked');
+const renderer = new marked.Renderer();
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -110,6 +112,21 @@ module.exports = {
             plugins: [ '@babel/plugin-transform-runtime', '@babel/plugin-syntax-dynamic-import' ],
           },
         },
+      },
+      {
+        test: /\.md$/,
+        use: [
+          {
+            loader: 'html-loader',
+          },
+          {
+            loader: 'markdown-loader',
+            options: {
+              pedantic: true,
+              renderer,
+            },
+          },
+        ],
       },
     ],
   },
