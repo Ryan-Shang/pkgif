@@ -158,9 +158,6 @@
                 <span style="margin-left: 10px;">©2018 Caandoll <a href="http://www.miibeian.gov.cn" target="_blank">蜀ICP备18003246号-1</a></span>
             </p>
         </footer>
-        <Drawer :width="300" :closable="false" v-model="releaseMDShow" class="md-box">
-            <div v-html="releaseMD"></div>
-        </Drawer>
         <Modal
                 v-model="generateModalShow"
                 :mask-closable="false"
@@ -178,6 +175,9 @@
                 <Button @click="closeGenerateModal">关闭</Button>
             </div>
         </Modal>
+        <Drawer :width="300" :closable="false" v-model="releaseMDShow" class="md-box">
+            <article v-html="releaseMD"></article>
+        </Drawer>
     </div>
 </template>
 
