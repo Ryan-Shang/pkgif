@@ -152,6 +152,8 @@
                 </Poptip>
                 。感谢您的反馈！
             </p>
+            <p style="margin-top: 20px;"><span>pkgif v{{packageJsonVersion}} ©2018 Caandoll</span><a href="http://www.miibeian.gov.cn" target="_blank" style="margin-left: 10px;">蜀ICP备18003246号-1</a>
+            </p>
         </footer>
         <Modal
                 v-model="generateModalShow"
@@ -178,6 +180,7 @@ import vueSlider from 'vue-slider-component';
 import draggable from 'vuedraggable';
 import SuperGif from '../helper/libgif';
 import GIF from 'gif.js.optimized';
+import pkg from '../../package';
 
 const fabric = require('fabric').fabric;
 
@@ -188,6 +191,7 @@ export default {
   },
   data() {
     return {
+      packageJsonVersion: pkg.version,
       loading: {
         feedback: false,
       },
