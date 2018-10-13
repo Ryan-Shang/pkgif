@@ -2,7 +2,7 @@
     <div class="pagehome">
         <div class="container">
             <div class="title">
-                P K G I F
+                <img src="../asset/img/logo-strip-web.png"/>
             </div>
             <div class="upload" v-show="!editReady">
                 <Upload
@@ -11,8 +11,8 @@
                         accept="image/gif"
                         :before-upload="uploadGif">
                     <div class="upload-area">
-                        <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-                        <p>上传GIF，或将其拖拽至此处</p>
+                        <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
+                        <p style="font-size: 14px;">上传GIF，或将其拖拽至此处</p>
                     </div>
                 </Upload>
             </div>
@@ -175,7 +175,7 @@
                 <Button @click="closeGenerateModal">关闭</Button>
             </div>
         </Modal>
-        <Drawer :width="300" :closable="false" v-model="releaseMDShow" class="md-box">
+        <Drawer :width="300" :closable="false" v-model="releaseMDShow" scrollable class="md-box">
             <article v-html="releaseMD"></article>
         </Drawer>
     </div>
@@ -573,12 +573,8 @@ export default {
             margin: 0 auto;
             position: relative;
             .title {
-                margin: 50px;
+                margin: 20px 0;
                 text-align: center;
-                font-size: 30px;
-                background-image: linear-gradient(180deg, #2d8cf0, #45ddff);
-                color: transparent;
-                background-clip: text;
             }
             .upload {
                 width: 500px;
