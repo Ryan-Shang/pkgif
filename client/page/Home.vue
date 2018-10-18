@@ -8,11 +8,12 @@
                 <Upload
                         type="drag"
                         action=""
-                        accept="image/gif"
+                        accept="image/gif,video/mp4"
                         :before-upload="uploadGif">
                     <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
-                        <p style="font-size: 14px;">上传GIF，或将其拖拽至此处</p>
+                        <p style="font-size: 14px;">点击上传，或拖拽至此（支持GIF、MP4格式）</p>
+                        <p>MP4不超过50M</p>
                     </div>
                 </Upload>
             </div>
@@ -158,6 +159,22 @@
                 <span style="margin-left: 10px;">©2018 Caandoll <a href="http://www.miibeian.gov.cn" target="_blank">蜀ICP备18003246号-1</a></span>
             </p>
         </footer>
+        <Modal v-model="videoToGifshow"
+               :mask-closable="false"
+               @on-cancel="videoToGifshow=false"
+               title="选择时间区间生成GIF素材">
+            <div>
+                <video ref="videoToGif" width="500" :src="videoToGifSrc" controls="controls"></video>
+                <vue-slider class="videoToGif-slider"
+                            v-model="videoToGifRange"
+                            :max="videoToGifInfo.direction"
+                            v-bind="videoToGifInfoOption">
+                </vue-slider>
+            </div>
+            <div slot="footer">
+                <Button @click="videoToGifshow=false">关闭</Button>
+            </div>
+        </Modal>
         <Modal
                 v-model="generateModalShow"
                 :mask-closable="false"
@@ -215,13 +232,16 @@ export default {
         'process-style': {
           'background-color': 'transparent',
         },
-        // 'use-keyboard': true,
       },
       addItemSliderOption: {
         tooltip: 'hover',
         'disabled-style': {
           cursor: 'pointer',
         },
+      },
+      videoToGifInfoOption: {
+        interval: 0.001,
+        tooltip: 'hover',
       },
       addItem: [],
       currentAddItemIndex: null,
@@ -248,6 +268,14 @@ export default {
         email: '',
       },
       mobileCenterAddItemOption: false,
+      videoToGifshow: false,
+      videoToGifSrc: null,
+      videoToGifRange: [],
+      videoToGifInfo: {
+        duration: 0,
+        videoWidth: 0,
+        videoHeight: 0,
+      },
     };
   },
   computed: {
@@ -313,17 +341,33 @@ export default {
       this.gif.reverse();
     },
     uploadGif(file) {
-      if (file.type !== 'image/gif') {
-        this.$Message.warning('请上传 gif 图片');
+      if (file.type === 'image/gif') {
+        this.$Spin.show();
+        const reader = new FileReader();
+        reader.onload = event => {
+          this.init(event.target.result);
+        };
+        reader.readAsText(file, 'x-user-defined');
+        return false;
+      } else if (file.type === 'video/mp4') {
+        this.$Spin.show();
+        const reader = new FileReader();
+        reader.onload = event => {
+          this.$Spin.hide();
+          const videoToGif = this.$refs.videoToGif;
+          this.videoToGifInfo = {
+            duration: videoToGif.duration,
+            videoWidth: videoToGif.videoWidth,
+            videoHeight: videoToGif.videoHeight,
+          };
+          // this.videoToGifRange = [ 0, videoToGif.duration ];
+          this.videoToGifSrc = event.target.result;
+          this.videoToGifshow = true;
+        };
+        reader.readAsDataURL(file);
         return false;
       }
-      this.editReady = false;
-      this.$Spin.show();
-      const reader = new FileReader();
-      reader.onload = event => {
-        this.init(event.target.result);
-      };
-      reader.readAsText(file, 'x-user-defined');
+      this.$Message.warning('请上传 gif 图片');
       return false;
     },
     init(data) {
@@ -646,6 +690,10 @@ export default {
         .ivu-drawer-body {
             padding-left: 24px;
         }
+    }
+
+    .videoToGif-slider {
+        margin-top: 10px;
     }
 
     @media screen and (max-width: 1250px) {
