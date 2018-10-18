@@ -161,18 +161,22 @@
         </footer>
         <Modal v-model="videoToGifshow"
                :mask-closable="false"
-               @on-cancel="videoToGifshow=false"
+               :width="videoToGifInfo.videoWidth + 100"
+               @on-cancel="closeVideoToGifModal"
                title="选择时间区间生成GIF素材">
-            <div>
-                <video ref="videoToGif" width="500" :src="videoToGifSrc" controls="controls"></video>
-                <vue-slider class="videoToGif-slider"
-                            v-model="videoToGifRange"
-                            :max="videoToGifInfo.direction"
-                            v-bind="videoToGifInfoOption">
-                </vue-slider>
+            <div ref="videoToGifBox" style="text-align: center">
+                <video ref="videoToGif" :width="videoToGifInfo.videoWidth > 1250 ? 1250 :videoToGifInfo.videoWidth"
+                       :src="videoToGifSrc" controls="controls"></video>
+                <div class="videoToGif-slider">
+                    <vue-slider v-model="videoToGifRange"
+                                :max="videoToGifInfo.duration"
+                                v-bind="videoToGifInfoOption">
+                    </vue-slider>
+                </div>
             </div>
             <div slot="footer">
-                <Button @click="videoToGifshow=false">关闭</Button>
+                <Button @click="closeVideoToGifModal">取消</Button>
+                <Button @click="confirmVideoToGif" type="primary">确认</Button>
             </div>
         </Modal>
         <Modal
@@ -240,7 +244,7 @@ export default {
         },
       },
       videoToGifInfoOption: {
-        interval: 0.001,
+        interval: 0.1,
         tooltip: 'hover',
       },
       addItem: [],
@@ -270,7 +274,7 @@ export default {
       mobileCenterAddItemOption: false,
       videoToGifshow: false,
       videoToGifSrc: null,
-      videoToGifRange: [],
+      videoToGifRange: [ 0, 0 ],
       videoToGifInfo: {
         duration: 0,
         videoWidth: 0,
@@ -340,6 +344,13 @@ export default {
     reverse() {
       this.gif.reverse();
     },
+    closeVideoToGifModal() {
+      this.videoToGifshow = false;
+      this.videoToGifSrc = null;
+    },
+    confirmVideoToGif() {
+      this.$Spin.show();
+    },
     uploadGif(file) {
       if (file.type === 'image/gif') {
         this.$Spin.show();
@@ -353,16 +364,18 @@ export default {
         this.$Spin.show();
         const reader = new FileReader();
         reader.onload = event => {
-          this.$Spin.hide();
           const videoToGif = this.$refs.videoToGif;
-          this.videoToGifInfo = {
-            duration: videoToGif.duration,
-            videoWidth: videoToGif.videoWidth,
-            videoHeight: videoToGif.videoHeight,
-          };
-          // this.videoToGifRange = [ 0, videoToGif.duration ];
           this.videoToGifSrc = event.target.result;
-          this.videoToGifshow = true;
+          videoToGif.oncanplaythrough = () => {
+            this.$Spin.hide();
+            this.videoToGifInfo = {
+              duration: videoToGif.duration,
+              videoWidth: videoToGif.videoWidth,
+              videoHeight: videoToGif.videoHeight,
+            };
+            this.videoToGifRange = [ 0, videoToGif.duration ];
+            this.videoToGifshow = true;
+          };
         };
         reader.readAsDataURL(file);
         return false;
@@ -693,7 +706,8 @@ export default {
     }
 
     .videoToGif-slider {
-        margin-top: 10px;
+        padding: 0 36px;
+        margin: 10px;
     }
 
     @media screen and (max-width: 1250px) {
