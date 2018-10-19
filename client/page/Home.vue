@@ -12,8 +12,8 @@
                         :before-upload="uploadGif">
                     <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
-                        <p style="font-size: 14px;">点击选择素材，或拖拽至此（支持<strong>GIF、MP4</strong>格式）</p>
-                        <p>MP4不超过50M</p>
+                        <p style="font-size: 14px;">😄玩转GIF，为任意GIF动图添加字幕👆（支持<strong>GIF、MP4</strong>格式）</p>
+                        <p>MP4不超过20M</p>
                     </div>
                 </Upload>
             </div>
@@ -23,12 +23,14 @@
                 </div>
                 <div class="operation">
                     <div class="control">
-                        <Button icon="md-undo" @click="toBegin" title="重置（R）"></Button>
-                        <Button icon="md-skip-backward" @click="prevOne" title="向前一帧（A）"></Button>
+                        <Button icon="md-repeat" @click="reverse" title="反转"></Button>
+                        <Button icon="md-skip-backward" @click="toBegin" title="重置（R）"></Button>
+                        <Button icon="ios-arrow-back" @click="prevOne" title="向前一帧（A）"></Button>
                         <Button :icon="playing ? 'md-pause' : 'md-play'" @click="playAndPause"
                                 :title="(playing ? '暂停' : '播放')+'（Space）'"></Button>
-                        <Button icon="md-skip-forward" @click="nextOne" title="向后一帧（D）"></Button>
-                        <Button icon="md-repeat" @click="reverse" title="反转"></Button>
+                        <Button icon="ios-arrow-forward" @click="nextOne" title="向后一帧（D）"></Button>
+                        <Button icon="md-undo" @click="undo" title="撤销"></Button>
+                        <Button icon="md-redo" @click="redo" title="取消撤销"></Button>
                     </div>
                     <div class="timeline">
                         <div style="text-align: center;font-size:18px">{{currentFrame}} / {{allFrame}}</div>
@@ -134,8 +136,8 @@
             </div>
         </div>
         <footer>
-            <p style="font-size: 14px;">玩转GIF，为任意GIF动图添加字幕，请使用chrome、firefox，safari、edge或极速模式下的360、QQ等浏览器</p>
-            <p style="margin-top: 20px;">如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
+            <p style="font-size: 14px;">请使用chrome、firefox，safari、edge或极速模式下的360、QQ等浏览器</p>
+            <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
                 <Poptip width="300" placement="right" v-model="feedbackPopTipShow">
                     <a>在线反馈</a>
                     <div slot="content">
@@ -351,6 +353,12 @@ export default {
     reverse() {
       this.gif.reverse();
     },
+    undo() {
+
+    },
+    redo() {
+
+    },
     closeVideoToGifModal() {
       this.videoToGifshow = false;
       this.videoToGifSrc = null;
@@ -379,13 +387,17 @@ export default {
         };
         reader.readAsText(blob, 'x-user-defined');
       });
+      let flag = false; // 去掉首帧，首帧黑屏
       const addFrame = () => {
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, width, height);
-        gif.addFrame(canvas, { delay });
+        if (flag) {
+          gif.addFrame(canvas, { delay });
+        }
+        flag = true;
         video.currentTime += delay / 1000;
         if (video.currentTime < this.videoToGifRange[ 1 ]) {
           setTimeout(() => {
@@ -601,6 +613,10 @@ export default {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(this.gif.get_canvas(), 0, 0, width, height);
         ctx.drawImage(this.subTextFabric.lowerCanvasEl, 0, 0, width, height);
+        ctx.font = `${width / 25}px YaHei`;
+        ctx.textAlign = 'end';
+        ctx.fillStyle = 'rgba(0,0,0,.6)';
+        ctx.fillText('pkgif.net', width - 15, 15);
         gif.addFrame(canvas, { delay: this.delay });
         this.currentFrame++;
         if (this.currentFrame < this.allFrame) {
