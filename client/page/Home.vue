@@ -12,7 +12,7 @@
                         :before-upload="uploadGif">
                     <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
-                        <p style="font-size: 14px;">点击上传，或拖拽至此（支持GIF、MP4格式）</p>
+                        <p style="font-size: 14px;">点击选择素材，或拖拽至此（支持<strong>GIF、MP4</strong>格式）</p>
                         <p>MP4不超过50M</p>
                     </div>
                 </Upload>
@@ -134,8 +134,8 @@
             </div>
         </div>
         <footer>
-            <p>给喜欢的GIF加上字幕，请使用chrome、firefox，或极速模式下的360、QQ等浏览器</p>
-            <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
+            <p style="font-size: 14px;">玩转GIF，为任意GIF动图添加字幕，请使用chrome、firefox，safari、edge或极速模式下的360、QQ等浏览器</p>
+            <p style="margin-top: 20px;">如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
                 <Poptip width="300" placement="right" v-model="feedbackPopTipShow">
                     <a>在线反馈</a>
                     <div slot="content">
@@ -153,7 +153,7 @@
                 </Poptip>
                 。感谢您的反馈！
             </p>
-            <p style="margin-top: 20px;">
+            <p>
                 <span>pkgif <a href="javascript:void(0)"
                                @click="releaseMDShow = true">v{{packageJsonVersion}}</a></span>
                 <span style="margin-left: 10px;">©2018 Caandoll <a href="http://www.miibeian.gov.cn" target="_blank">蜀ICP备18003246号-1</a></span>
@@ -165,7 +165,7 @@
                @on-cancel="closeVideoToGifModal"
                title="选择时间区间生成GIF素材">
             <div ref="videoToGifBox" style="text-align: center">
-                <video ref="videoToGif" :width="videoToGifInfo.videoWidth > 1250 ? 1250 :videoToGifInfo.videoWidth"
+                <video ref="videoToGif" :width="videoToGifInfo.videoWidth"
                        :src="videoToGifSrc" controls="controls"></video>
                 <div class="videoToGif-slider">
                     <vue-slider v-model="videoToGifRange"
@@ -176,7 +176,9 @@
             </div>
             <div slot="footer">
                 <Button @click="closeVideoToGifModal">取消</Button>
-                <Button @click="confirmVideoToGif" type="primary">确认</Button>
+                <Button @click="confirmVideoToGif" type="primary"
+                        :disabled="videoToGifRange[ 1 ] === videoToGifRange[ 0 ]">确认
+                </Button>
             </div>
         </Modal>
         <Modal
@@ -280,6 +282,11 @@ export default {
         videoWidth: 0,
         videoHeight: 0,
       },
+      globalOptions: {
+        VIDEO_TO_GIF_MAX_WIDTH: 400, // video转gif最大宽度
+        VIDEO_TO_GIF_DELAY: 50, // video转gif帧之间的ms数
+        GIF_MAX_WIDTH: 1250, // 上传gif最大宽度
+      },
     };
   },
   computed: {
@@ -350,6 +357,45 @@ export default {
     },
     confirmVideoToGif() {
       this.$Spin.show();
+      const video = this.$refs.videoToGif;
+      video.pause();
+      video.currentTime = this.videoToGifRange[ 0 ];
+      // 配置
+      const delay = this.globalOptions.VIDEO_TO_GIF_DELAY;
+      const width = this.videoToGifInfo.videoWidth;
+      const height = this.videoToGifInfo.videoHeight;
+      // gif配置
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width,
+        height,
+      });
+      gif.on('finished', blob => {
+        const reader = new FileReader();
+        reader.onload = event => {
+          this.closeVideoToGifModal();
+          this.init(event.target.result);
+        };
+        reader.readAsText(blob, 'x-user-defined');
+      });
+      const addFrame = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, width, height);
+        gif.addFrame(canvas, { delay });
+        video.currentTime += delay / 1000;
+        if (video.currentTime < this.videoToGifRange[ 1 ]) {
+          setTimeout(() => {
+            addFrame();
+          }, delay);
+        } else {
+          gif.render();
+        }
+      };
+      addFrame();
     },
     uploadGif(file) {
       if (file.type === 'image/gif') {
@@ -366,12 +412,16 @@ export default {
         reader.onload = event => {
           const videoToGif = this.$refs.videoToGif;
           this.videoToGifSrc = event.target.result;
-          videoToGif.oncanplaythrough = () => {
+          videoToGif.onloadeddata = () => {
             this.$Spin.hide();
+            // 设置宽高
+            const maxWidth = this.globalOptions.VIDEO_TO_GIF_MAX_WIDTH;
+            const videoWidth = videoToGif.videoWidth <= maxWidth ? videoToGif.videoWidth : maxWidth;
+            const videoHeight = videoToGif.videoHeight / videoToGif.videoWidth * maxWidth;
             this.videoToGifInfo = {
               duration: videoToGif.duration,
-              videoWidth: videoToGif.videoWidth,
-              videoHeight: videoToGif.videoHeight,
+              videoWidth,
+              videoHeight,
             };
             this.videoToGifRange = [ 0, videoToGif.duration ];
             this.videoToGifshow = true;
@@ -380,16 +430,15 @@ export default {
         reader.readAsDataURL(file);
         return false;
       }
-      this.$Message.warning('请上传 gif 图片');
+      this.$Message.warning('请上传 gif 图片 或 mp4 视频');
       return false;
     },
     init(data) {
-      const width = document.querySelector('.container').offsetWidth;
       this.gif = new SuperGif({
         container: this.$refs.gifBox,
         auto_play: 0,
         loop_mode: false,
-        max_width: width,
+        max_width: this.globalOptions.GIF_MAX_WIDTH,
         on_end: () => {
           this.playing = false;
         },
@@ -530,24 +579,22 @@ export default {
     },
     generate() {
       this.$Spin.show();
+      // 配置宽高
+      const width = this.viewSize.width;
+      const height = this.viewSize.height;
       const gif = new GIF({
         workers: 2,
         quality: 10,
-        width: this.viewSize.width,
-        height: this.viewSize.height,
+        width,
+        height,
       });
-
       gif.on('finished', blob => {
         this.$Spin.hide();
         this.generateGif = URL.createObjectURL(blob);
         this.generateModalShow = true;
       });
-
       this.toBegin();
-
       const addFrame = () => {
-        const width = this.viewSize.width;
-        const height = this.viewSize.height;
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
@@ -693,7 +740,7 @@ export default {
             }
         }
         footer {
-            width: 1250px;
+            width: 600px;
             margin: 20px auto 30px;
             text-align: center;
         }
@@ -716,7 +763,6 @@ export default {
                 width: 92vw;
                 .upload {
                     width: 100%;
-                    height: 30vh;
                     .upload-area {
                         padding: 10vh 0;
                     }
