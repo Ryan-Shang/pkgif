@@ -13,7 +13,8 @@
                     <div class="upload-area">
                         <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
                         <p style="font-size: 14px;">😄玩转GIF，为任意GIF动图添加字幕👆（支持<strong>GIF、MP4</strong>格式）</p>
-                        <p>MP4不超过20M</p>
+                        <p>
+                            MP4不超过{{globalOptions.VIDEO_TO_GIF_MAX_MB}}M，宽度自动限制{{globalOptions.VIDEO_TO_GIF_MAX_WIDTH}}px</p>
                     </div>
                 </Upload>
             </div>
@@ -23,14 +24,16 @@
                 </div>
                 <div class="operation">
                     <div class="control">
-                        <Button icon="md-repeat" @click="reverse" title="反转"></Button>
                         <Button icon="md-skip-backward" @click="toBegin" title="重置（R）"></Button>
                         <Button icon="ios-arrow-back" @click="prevOne" title="向前一帧（A）"></Button>
                         <Button :icon="playing ? 'md-pause' : 'md-play'" @click="playAndPause"
                                 :title="(playing ? '暂停' : '播放')+'（Space）'"></Button>
                         <Button icon="ios-arrow-forward" @click="nextOne" title="向后一帧（D）"></Button>
-                        <Button icon="md-undo" @click="undo" title="撤销"></Button>
-                        <Button icon="md-redo" @click="redo" title="取消撤销"></Button>
+                        <Button icon="md-repeat" @click="reverse" title="反转"></Button>
+                        <!-- <Button icon="md-undo" @click="undo" title="撤销"
+                                :disabled="currentBackupRecordIndex === 0"></Button>
+                        <Button icon="md-redo" @click="redo" title="取消撤销"
+                                :disabled="currentBackupRecordIndex >= AddItemBackupRecord.length -1"></Button>-->
                     </div>
                     <div class="timeline">
                         <div style="text-align: center;font-size:18px">{{currentFrame}} / {{allFrame}}</div>
@@ -155,7 +158,7 @@
                 </Poptip>
                 。感谢您的反馈！
             </p>
-            <p>
+            <p style="margin-top: 20px;">
                 <span>pkgif <a href="javascript:void(0)"
                                @click="releaseMDShow = true">v{{packageJsonVersion}}</a></span>
                 <span style="margin-left: 10px;">©2018 Caandoll <a href="http://www.miibeian.gov.cn" target="_blank">蜀ICP备18003246号-1</a></span>
@@ -249,9 +252,11 @@ export default {
       },
       videoToGifInfoOption: {
         interval: 0.1,
-        tooltip: 'hover',
+        tooltip: 'always',
       },
       addItem: [],
+      /* AddItemBackupRecord: [],
+      currentBackupRecordIndex: 0,*/
       currentAddItemIndex: null,
       subTextFabric: null,
       viewSize: {
@@ -285,6 +290,7 @@ export default {
         videoHeight: 0,
       },
       globalOptions: {
+        VIDEO_TO_GIF_MAX_MB: 20, // video转gif文件最大mb
         VIDEO_TO_GIF_MAX_WIDTH: 400, // video转gif最大宽度
         VIDEO_TO_GIF_DELAY: 50, // video转gif帧之间的ms数
         GIF_MAX_WIDTH: 1250, // 上传gif最大宽度
@@ -321,6 +327,7 @@ export default {
       handler() {
         if (this.gif) {
           this.renderText();
+          // this.backupAddItem();
         }
       },
       deep: true,
@@ -353,11 +360,52 @@ export default {
     reverse() {
       this.gif.reverse();
     },
-    undo() {
-
+    /* undo() {
+      this.addItem = JSON.parse(JSON.stringify(this.AddItemBackupRecord[ this.currentBackupRecordIndex - 1 ]));
+      this.$forceUpdate();
     },
     redo() {
-
+      this.addItem = JSON.parse(JSON.stringify(this.AddItemBackupRecord[ this.currentBackupRecordIndex + 1 ]));
+      this.$forceUpdate();
+    },*/
+    uploadGif(file) {
+      if (file.type === 'image/gif') {
+        this.$Spin.show();
+        const reader = new FileReader();
+        reader.onload = event => {
+          this.init(event.target.result);
+        };
+        reader.readAsText(file, 'x-user-defined');
+      } else if (file.type === 'video/mp4') {
+        if (file.size <= this.globalOptions.VIDEO_TO_GIF_MAX_MB * 1024 * 1024) {
+          this.$Spin.show();
+          const reader = new FileReader();
+          reader.onload = event => {
+            const videoToGif = this.$refs.videoToGif;
+            this.videoToGifSrc = event.target.result;
+            videoToGif.onloadeddata = () => {
+              this.$Spin.hide();
+              // 设置宽高
+              const maxWidth = this.globalOptions.VIDEO_TO_GIF_MAX_WIDTH;
+              const videoWidth = videoToGif.videoWidth <= maxWidth ? videoToGif.videoWidth : maxWidth;
+              const videoHeight = videoToGif.videoHeight / videoToGif.videoWidth * maxWidth;
+              this.videoToGifInfo = {
+                duration: videoToGif.duration,
+                videoWidth,
+                videoHeight,
+              };
+              this.videoToGifRange = [ 0, videoToGif.duration ];
+              this.videoToGifshow = true;
+            };
+          };
+          reader.readAsDataURL(file);
+        } else {
+          this.$Message.warning(`视频文件超过${this.globalOptions.VIDEO_TO_GIF_MAX_MB}M`);
+        }
+      } else {
+        this.$Message.warning('请上传 gif 图片 或 mp4 视频');
+      }
+      return false;
     },
     closeVideoToGifModal() {
       this.videoToGifshow = false;
@@ -408,42 +456,6 @@ export default {
         }
       };
       addFrame();
-    },
-    uploadGif(file) {
-      if (file.type === 'image/gif') {
-        this.$Spin.show();
-        const reader = new FileReader();
-        reader.onload = event => {
-          this.init(event.target.result);
-        };
-        reader.readAsText(file, 'x-user-defined');
-        return false;
-      } else if (file.type === 'video/mp4') {
-        this.$Spin.show();
-        const reader = new FileReader();
-        reader.onload = event => {
-          const videoToGif = this.$refs.videoToGif;
-          this.videoToGifSrc = event.target.result;
-          videoToGif.onloadeddata = () => {
-            this.$Spin.hide();
-            // 设置宽高
-            const maxWidth = this.globalOptions.VIDEO_TO_GIF_MAX_WIDTH;
-            const videoWidth = videoToGif.videoWidth <= maxWidth ? videoToGif.videoWidth : maxWidth;
-            const videoHeight = videoToGif.videoHeight / videoToGif.videoWidth * maxWidth;
-            this.videoToGifInfo = {
-              duration: videoToGif.duration,
-              videoWidth,
-              videoHeight,
-            };
-            this.videoToGifRange = [ 0, videoToGif.duration ];
-            this.videoToGifshow = true;
-          };
-        };
-        reader.readAsDataURL(file);
-        return false;
-      }
-      this.$Message.warning('请上传 gif 图片 或 mp4 视频');
-      return false;
     },
     init(data) {
       this.gif = new SuperGif({
@@ -534,6 +546,17 @@ export default {
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
     },
+    /* backupAddItem() {
+      if (this.currentBackupRecordIndex >= this.AddItemBackupRecord.length - 1) { // 备份时当前是最新记录
+        const length = this.AddItemBackupRecord.push(this.addItem);
+        this.currentBackupRecordIndex = length - 1;
+        if (length >= 20) {
+          this.AddItemBackupRecord.shift();
+        }
+      } else { // 备份时已经是正在撤回的状态
+        this.AddItemBackupRecord = this.AddItemBackupRecord.splice(0, this.currentBackupRecordIndex);
+      }
+    },*/
     renderText() {
       this.subTextFabric.clear();
       for (let i = 0; i < this.addItem.length; i++) {
@@ -613,10 +636,12 @@ export default {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(this.gif.get_canvas(), 0, 0, width, height);
         ctx.drawImage(this.subTextFabric.lowerCanvasEl, 0, 0, width, height);
-        ctx.font = `${width / 25}px YaHei`;
-        ctx.textAlign = 'end';
-        ctx.fillStyle = 'rgba(0,0,0,.6)';
-        ctx.fillText('pkgif.net', width - 15, 15);
+        // 水印功能
+        ctx.font = `${width * 0.02}px YaHei`;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgba(255,255,255,.4)';
+        ctx.fillText('pkgif.net', width * (1 - 0.02), height * 0.02);
         gif.addFrame(canvas, { delay: this.delay });
         this.currentFrame++;
         if (this.currentFrame < this.allFrame) {
@@ -769,8 +794,8 @@ export default {
     }
 
     .videoToGif-slider {
-        padding: 0 36px;
-        margin: 10px;
+        padding: 0 46px;
+        margin-top: 30px;
     }
 
     @media screen and (max-width: 1250px) {
