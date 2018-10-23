@@ -14,7 +14,9 @@
                         <Icon type="ios-cloud-upload" size="60" style="color: #3399ff"></Icon>
                         <p style="font-size: 14px;">😄玩转GIF，为任意GIF动图添加字幕👆（支持<strong>GIF、MP4</strong>格式）</p>
                         <p>
-                            MP4不超过{{globalOptions.VIDEO_TO_GIF_MAX_MB}}M，宽度自动限制{{globalOptions.VIDEO_TO_GIF_MAX_WIDTH}}px</p>
+                            GIF宽度自动限制{{globalOptions.GIF_MAX_WIDTH}}px</p>
+                        <p>
+                            MP4大小不超过{{globalOptions.VIDEO_TO_GIF_MAX_MB}}M，宽度自动限制{{globalOptions.VIDEO_TO_GIF_MAX_WIDTH}}px</p>
                     </div>
                 </Upload>
             </div>
@@ -30,6 +32,9 @@
                                 :title="(playing ? '暂停' : '播放')+'（Space）'"></Button>
                         <Button icon="ios-arrow-forward" @click="nextOne" title="向后一帧（D）"></Button>
                         <Button icon="md-repeat" @click="reverse" title="反转"></Button>
+                        <InputNumber style="width: 70px;" v-model="viewSize.scale" max="100" min="0"
+                                     :formatter="value => `${value}%`"
+                                     :parser="value => value.replace('%', '')"></InputNumber>
                         <!-- <Button icon="md-undo" @click="undo" title="撤销"
                                 :disabled="currentBackupRecordIndex === 0"></Button>
                         <Button icon="md-redo" @click="redo" title="取消撤销"
@@ -262,6 +267,7 @@ export default {
       viewSize: {
         width: 0,
         height: 0,
+        scale: 100,
       },
       fontFamilyList: {
         SimSun: '宋体',
