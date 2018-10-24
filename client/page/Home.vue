@@ -145,7 +145,9 @@
             <div class="demo-item">
                 <img :src="wsyw">
                 <div class="transform">
-                    <Button type="primary" shape="circle" @click="tryDemoWsyw"><span>点我试试</span> <Icon size="16" type="md-arrow-round-forward" style="position:relative;top: -1px;"/></Button>
+                    <Button type="primary" shape="circle" @click="tryDemoWsyw"><span>点我试试</span>
+                        <Icon size="16" type="md-arrow-round-forward" style="position:relative;top: -1px;"/>
+                    </Button>
                 </div>
                 <img :src="wsywPkgif">
             </div>
@@ -745,7 +747,7 @@ export default {
       h.open('GET', this.wsyw, true);
       h.overrideMimeType('text/plain; charset=x-user-defined');
       h.onload = e => {
-        this.init(e.target.response, wsywData);
+        this.init(e.target.response, JSON.parse(JSON.stringify(wsywData)));
       };
       h.send();
     },
