@@ -2,7 +2,7 @@
     <div class="pagehome">
         <div class="container">
             <div class="title">
-                <img src="../asset/img/logo-strip-web.png"/>
+                <img src="../asset/img/logo-strip-web.png" width="200"/>
             </div>
             <div class="upload" v-show="!editReady">
                 <Upload
@@ -52,8 +52,9 @@
                                                 style="margin-top:10px"
                                                 :disabled="currentAddItemIndex !== index"
                                                 :key="index"
-                                                v-model="item.frameRange"
+                                                :value="[item.frameRangeStart,item.frameRangeEnd]"
                                                 :max="allFrame"
+                                                @callback="changeSlider"
                                                 v-bind="addItemSliderOption">
                                         </vue-slider>
                                         <p>
@@ -140,6 +141,15 @@
                 </div>
             </div>
         </div>
+        <div class="demo" v-show="!editReady">
+            <div class="demo-item">
+                <img :src="wsyw">
+                <div class="transform">
+                    <Button type="primary" shape="circle" @click="tryDemoWsyw"><span>点我试试</span> <Icon size="16" type="md-arrow-round-forward" style="position:relative;top: -1px;"/></Button>
+                </div>
+                <img :src="wsywPkgif">
+            </div>
+        </div>
         <footer>
             <p style="font-size: 14px;">请使用chrome、firefox，safari、edge或极速模式下的360、QQ等浏览器</p>
             <p>如果您有BUG反馈、意见或更好的建议，请联系我：<strong>caandoll@aliyun.com</strong>，也可以
@@ -205,7 +215,7 @@
                 <img :src="generateGif" :width="viewSize.width" :height="viewSize.height"/>
                 <p style="margin-top: 10px;">由于权限问题，大部分浏览器无法直接<strong>复制</strong>出去
                 <p style="margin-top: 2px;">请 <strong>右键图片另存为</strong> 或
-                    <a :href="generateGif" download="pk.gif">直接下载</a>
+                    <a :href="generateGif" download="pkgif.net.gif">直接下载</a>
                 </p>
             </div>
             <div slot="footer">
@@ -225,6 +235,9 @@ import SuperGif from '../helper/libgif';
 import GIF from 'gif.js.optimized';
 import pkg from '../../package';
 import releaseMD from '../../RELEASE.md';
+import wsyw from '../asset/img/demo/wsyw.gif';
+import wsywData from '../asset/img/demo/wsyw.json';
+import wsywPkgif from '../asset/img/demo/wsyw-pkgif.net.gif';
 
 const fabric = require('fabric').fabric;
 
@@ -235,6 +248,8 @@ export default {
   },
   data() {
     return {
+      wsyw,
+      wsywPkgif,
       releaseMD,
       releaseMDShow: false,
       packageJsonVersion: pkg.version,
@@ -475,7 +490,7 @@ export default {
       };
       addFrame();
     },
-    init(data) {
+    init(data, addItemData) {
       this.gif = new SuperGif({
         container: this.$refs.gifBox,
         auto_play: 0,
@@ -510,13 +525,18 @@ export default {
           height: this.gif.get_canvas().height,
         };
         this.toBegin();
+        if (addItemData) {
+          this.addItem = addItemData;
+          this.currentAddItemIndex = this.addItem.length - 1;
+        }
       });
     },
     pushAddItemText() {
       const defaltColor = 'rgba(255,255,255,1)';
       const newAddItem = {
         type: 'text',
-        frameRange: [ this.currentFrame, this.allFrame ],
+        frameRangeStart: this.currentFrame,
+        frameRangeEnd: this.allFrame,
         text: '输入文字',
         color: defaltColor,
         top: this.viewSize.height * 0.85,
@@ -534,7 +554,8 @@ export default {
       const defaltColor = 'rgba(0,0,0,1)';
       const newAddItem = {
         type: 'block',
-        frameRange: [ this.currentFrame, this.allFrame ],
+        frameRangeStart: this.currentFrame,
+        frameRangeEnd: this.allFrame,
         top: this.viewSize.height * 0.9,
         left: this.viewSize.width * 0.5,
         color: defaltColor,
@@ -551,16 +572,18 @@ export default {
     selectAddItem(index) {
       this.currentAddItemIndex = index;
     },
+    changeSlider(value) {
+      this.addItem[ this.currentAddItemIndex ].frameRangeStart = value[ 0 ];
+      this.addItem[ this.currentAddItemIndex ].frameRangeEnd = value[ 1 ];
+    },
     removeAddItem(index) {
       this.addItem.splice(index, 1);
       this.currentAddItemIndex = this.addItem.length ? index - 1 : null;
     },
     copyAddItem(index) {
       const newAddItem = JSON.parse(JSON.stringify(this.addItem[ index ]));
-      if (newAddItem.frameRange[ 1 ] < this.allFrame) { // 如果该项尾帧不是整个GIF结尾，那么使他接着母项的帧数播放
-        newAddItem.frameRange[ 0 ] = newAddItem.frameRange[ 1 ] + 1;
-        newAddItem.frameRange[ 1 ] = this.allFrame;
-      }
+      newAddItem.frameRangeStart = this.currentFrame;
+      newAddItem.frameRangeEnd = this.allFrame;
       const length = this.addItem.push(newAddItem);
       this.currentAddItemIndex = length - 1;
     },
@@ -579,11 +602,16 @@ export default {
       this.subTextFabric.clear();
       for (let i = 0; i < this.addItem.length; i++) {
         const item = this.addItem[ i ];
-        if (item.frameRange[ 0 ] <= this.currentFrame && item.frameRange[ 1 ] >= this.currentFrame) {
+        if (item.frameRangeStart <= this.currentFrame && item.frameRangeEnd >= this.currentFrame) {
           let fabricItem;
           switch (item.type) {
             case 'text':
               fabricItem = new fabric.Text(item.text, {
+                shadow: {
+                  color: '#000',
+                  offsetX: 1,
+                  offsetY: 1,
+                },
                 top: item.top,
                 left: item.left,
                 fill: item.color,
@@ -646,7 +674,6 @@ export default {
         this.generateGif = URL.createObjectURL(blob);
         this.generateModalShow = true;
       });
-      this.toBegin();
       const addFrame = () => {
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -670,7 +697,10 @@ export default {
           gif.render();
         }
       };
-      addFrame();
+      this.toBegin();
+      setTimeout(() => {
+        addFrame();
+      }, this.delay);
     },
     closeGenerateModal() {
       this.generateModalShow = false;
@@ -708,6 +738,16 @@ export default {
         }
       });
       captcha.show();
+    },
+    tryDemoWsyw() {
+      this.$Spin.show();
+      const h = new XMLHttpRequest();
+      h.open('GET', this.wsyw, true);
+      h.overrideMimeType('text/plain; charset=x-user-defined');
+      h.onload = e => {
+        this.init(e.target.response, wsywData);
+      };
+      h.send();
     },
   },
   created() {
@@ -796,6 +836,19 @@ export default {
             .generate {
                 width: 300px;
                 margin: 40px auto 0;
+            }
+        }
+        .demo {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            .demo-item {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .transform {
+                    margin: 0 20px;
+                }
             }
         }
         footer {
