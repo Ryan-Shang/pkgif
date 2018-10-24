@@ -32,9 +32,6 @@
                                 :title="(playing ? '暂停' : '播放')+'（Space）'"></Button>
                         <Button icon="ios-arrow-forward" @click="nextOne" title="向后一帧（D）"></Button>
                         <Button icon="md-repeat" @click="reverse" title="反转"></Button>
-                        <InputNumber style="width: 70px;" v-model="viewSize.scale" max="100" min="0"
-                                     :formatter="value => `${value}%`"
-                                     :parser="value => value.replace('%', '')"></InputNumber>
                         <!-- <Button icon="md-undo" @click="undo" title="撤销"
                                 :disabled="currentBackupRecordIndex === 0"></Button>
                         <Button icon="md-redo" @click="redo" title="取消撤销"
@@ -175,7 +172,7 @@
                @on-cancel="closeVideoToGifModal"
                title="选择时间区间生成GIF素材">
             <div ref="videoToGifBox" style="text-align: center">
-                <video ref="videoToGif" :width="videoToGifInfo.videoWidth"
+                <video ref="videoToGif" :width="scaleVideoSize.videoWidth"
                        :src="videoToGifSrc" controls="controls"></video>
                 <div class="videoToGif-slider">
                     <vue-slider v-model="videoToGifRange"
@@ -183,11 +180,18 @@
                                 v-bind="videoToGifInfoOption">
                     </vue-slider>
                 </div>
+                <div>
+                    PS：视频生成的素材会比较大，可先进行一定缩放
+                    <InputNumber style="width: 70px;" v-model="videoToGifInfo.scale" :max="100" :min="1"
+                                 :step="1"
+                                 :formatter="value => `${value}%`"
+                                 :parser="value => value.replace('%', '')"></InputNumber>
+                </div>
             </div>
             <div slot="footer">
                 <Button @click="closeVideoToGifModal">取消</Button>
                 <Button @click="confirmVideoToGif" type="primary"
-                        :disabled="videoToGifRange[ 1 ] === videoToGifRange[ 0 ]">确认
+                        :disabled="videoToGifRange[ 1 ] === videoToGifRange[ 0 ] || !videoToGifInfo.scale">确认
                 </Button>
             </div>
         </Modal>
@@ -267,7 +271,6 @@ export default {
       viewSize: {
         width: 0,
         height: 0,
-        scale: 100,
       },
       fontFamilyList: {
         SimSun: '宋体',
@@ -294,6 +297,7 @@ export default {
         duration: 0,
         videoWidth: 0,
         videoHeight: 0,
+        scale: 0,
       },
       globalOptions: {
         VIDEO_TO_GIF_MAX_MB: 20, // video转gif文件最大mb
@@ -320,6 +324,13 @@ export default {
         block: '色块设置',
       };
       return map[ this.addItem[ this.currentAddItemIndex ].type ];
+    },
+    scaleVideoSize() {
+      const videoToGifInfo = this.videoToGifInfo;
+      return {
+        videoWidth: videoToGifInfo.videoWidth * videoToGifInfo.scale / 100,
+        videoHeight: videoToGifInfo.videoHeight * videoToGifInfo.scale / 100,
+      };
     },
   },
   watch: {
@@ -399,6 +410,7 @@ export default {
                 duration: videoToGif.duration,
                 videoWidth,
                 videoHeight,
+                scale: 100,
               };
               this.videoToGifRange = [ 0, videoToGif.duration ];
               this.videoToGifshow = true;
@@ -424,8 +436,8 @@ export default {
       video.currentTime = this.videoToGifRange[ 0 ];
       // 配置
       const delay = this.globalOptions.VIDEO_TO_GIF_DELAY;
-      const width = this.videoToGifInfo.videoWidth;
-      const height = this.videoToGifInfo.videoHeight;
+      const width = this.scaleVideoSize.videoWidth;
+      const height = this.scaleVideoSize.videoHeight;
       // gif配置
       const gif = new GIF({
         workers: 2,
