@@ -1,5 +1,24 @@
-# pkgif
-### 静态资源 nginx托管
-web /webapp
-供搜索引擎使用 /webapp-prerender
-### egg服务端 通过nginx反向代理访问
+# test
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
