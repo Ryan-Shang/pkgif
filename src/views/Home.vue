@@ -405,9 +405,6 @@ export default {
       wsyw,
       wsywPkgif,
       packageJsonVersion: pkg.version,
-      loading: {
-        feedback: false,
-      },
       editReady: false,
       gif: null,
       playing: false,
@@ -451,11 +448,6 @@ export default {
       delay: null,
       generateModalShow: false,
       generateGif: null,
-      feedbackPopTipShow: false,
-      feedbackInput: {
-        content: '',
-        email: '',
-      },
       mobileCenterAddItemOption: false,
       videoToGifshow: false,
       videoToGifSrc: null,
@@ -475,16 +467,6 @@ export default {
     };
   },
   computed: {
-    feedbackInvalidMessage() {
-      if (!this.feedbackInput.content) {
-        return '想跟我说什么呢';
-      } else if (this.feedbackInput.content.length > 200) {
-        return '太长啦消化不了啦，请少于200字喔';
-      } else if (this.feedbackInput.email && !/^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/.test(this.feedbackInput.email)) {
-        return '再检查一下邮箱格式呢';
-      }
-      return '';
-    },
     addItemOptionModalTitle() {
       const map = {
         text: '字幕设置',
@@ -877,36 +859,6 @@ export default {
     },
     restart() {
       Object.assign(this.$data, this.$options.data());
-    },
-    submitFeedback() {
-      this.loading.feedback = true;
-      const captcha = new window.TencentCaptcha('2089125366', res => {
-        if (res.ret === 0) {
-          const param = {
-            ...this.feedbackInput,
-            ticket: res.ticket,
-            randstr: res.randstr,
-          };
-          this.$axios.post('/feedback', param).then(res => {
-            this.loading.feedback = false;
-            const result = res.data;
-            if (result.status === 'SUCCEED') {
-              this.feedbackPopTipShow = false;
-              this.feedbackInput = this.$options.data().feedbackInput;
-              this.$Message.success({
-                content: '发送成功，感谢您的反馈',
-                duration: 5,
-              });
-            }
-          }).catch(() => {
-            this.loading.feedback = false;
-          });
-        } else {
-          this.$Message.warning('验证失败，请重新再试');
-          this.loading.feedback = false;
-        }
-      });
-      captcha.show();
     },
     tryDemoWsyw() {
       this.$Spin.show();
