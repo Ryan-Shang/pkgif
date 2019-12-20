@@ -3,7 +3,7 @@
         <div class="container">
             <div class="title">
                 <img
-                    src="@assets/img/logo-strip-web.png"
+                    src="http://cdn.pkgif.net/webapp/logo-strip-web.png"
                     width="200"
                 >
             </div>
@@ -386,12 +386,10 @@
 <script>
 import vueSlider from 'vue-slider-component';
 import draggable from 'vuedraggable';
-import SuperGif from '@utils/libgif';
 import GIF from 'gif.js.optimized';
-import pkg from '../../package';
-import wsyw from '@assets/img/demo/wsyw.gif';
+import SuperGif from '@utils/libgif';
 import wsywData from '@assets/img/demo/wsyw.json';
-import wsywPkgif from '@assets/img/demo/wsyw-pkgif.net.gif';
+import pkg from '../../package';
 
 const fabric = require('fabric').fabric;
 
@@ -402,8 +400,8 @@ export default {
   },
   data() {
     return {
-      wsyw,
-      wsywPkgif,
+      wsyw: 'http://cdn.pkgif.net/webapp/wsyw.gif',
+      wsywPkgif: 'http://cdn.pkgif.net/webapp/wsyw-pkgif.net.gif',
       packageJsonVersion: pkg.version,
       editReady: false,
       gif: null,

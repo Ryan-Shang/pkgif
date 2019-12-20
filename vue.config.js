@@ -1,15 +1,11 @@
 'use strict';
 const aliasConfig = require('./alias.config');
-const QiniuPlugin = require('qn-webpack');
 const PrerenderSPAPlugin = require('prerender-spa-plugin');
 const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const CDN_PREFIX = 'webapp/';
-
 module.exports = {
-  publicPath: isProd ? `http://cdn.pkgif.net/${CDN_PREFIX}` : '/',
   chainWebpack: config => {
     config.module
       .rule('vue')
@@ -24,13 +20,6 @@ module.exports = {
   configureWebpack: {
     ...aliasConfig,
     plugins: isProd ? [
-      new QiniuPlugin({
-        accessKey: 'cgSW-aHuGtHQP2tptoVXRIbPHRLRxIF07-MEJeUt',
-        secretKey: '_gbHhjrl2LPk7mdghpL9Cixo2JvS-rqhpnKWNjfg',
-        bucket: 'pkgif',
-        path: CDN_PREFIX,
-        exclude: /index\.html$/,
-      }),
       new PrerenderSPAPlugin({
         staticDir: path.join(process.cwd(), 'dist'),
         routes: [ '/' ],
