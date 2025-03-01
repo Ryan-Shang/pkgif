@@ -182,6 +182,7 @@
                                     <template v-if="addItem[currentAddItemIndex].type === 'text'">
                                         <FormItem label="内容">
                                             <Input
+                                                type="textarea"
                                                 v-model="addItem[currentAddItemIndex].text"
                                                 style="width: 210px;"
                                             />
@@ -1019,5 +1020,17 @@ export default {
                 width: 90vw;
             }
         }
+    }
+    @media screen and (max-width: 800px) {
+      .pagehome {
+        .demo {
+          .demo-item {
+            flex-direction: column;
+            img {
+              margin: 10px 0;
+            }
+          }
+        }
+      }
     }
 </style>
