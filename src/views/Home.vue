@@ -3,7 +3,7 @@
         <div class="container">
             <div class="title">
                 <img
-                    src="http://cdn.pkgif.net/webapp/logo-strip-web.png"
+                    src="/img/logo-strip-web.png"
                     width="200"
                 >
             </div>
@@ -290,15 +290,9 @@
             <p style="font-size: 14px;">
                 请使用chrome、firefox，safari、edge或极速模式下的360、QQ等浏览器
             </p>
-            <p>
-                如果您有BUG反馈、意见或更好的建议，请联系我：<strong><a href="Mailto:caandoll@aliyun.com">caandoll@aliyun.com</a></strong>，感谢您的反馈！
-            </p>
             <p style="margin-top: 20px;">
                 <span>pkgif v{{ packageJsonVersion }}</span>
-                <span style="margin-left: 10px;">©2018 Caandoll <a
-                    href="http://www.miibeian.gov.cn"
-                    target="_blank"
-                >蜀ICP备18003246号-1</a></span>
+                <span style="margin-left: 10px;"> 原作者： <a href="https://github.com/CaanDoll" target="_">Caandoll</a> </span>
             </p>
         </footer>
         <Modal
@@ -388,7 +382,7 @@ import vueSlider from 'vue-slider-component';
 import draggable from 'vuedraggable';
 import GIF from 'gif.js.optimized';
 import SuperGif from '@utils/libgif';
-import wsywData from '@assets/img/demo/wsyw.json';
+import wsywData from '@assets/wsyw.json';
 import pkg from '../../package';
 
 const fabric = require('fabric').fabric;
@@ -400,8 +394,8 @@ export default {
   },
   data() {
     return {
-      wsyw: 'http://cdn.pkgif.net/webapp/wsyw.gif',
-      wsywPkgif: 'http://cdn.pkgif.net/webapp/wsyw-pkgif.net.gif',
+      wsyw: '/img/demo/wsyw.gif',
+      wsywPkgif: '/img/demo/wsyw-pkgif.gif',
       packageJsonVersion: pkg.version,
       editReady: false,
       gif: null,

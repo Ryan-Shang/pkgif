@@ -1,11 +1,13 @@
-'use strict';
-const aliasConfig = require('./alias.config');
-const PrerenderSPAPlugin = require('prerender-spa-plugin');
+const { defineConfig } = require('@vue/cli-service')
+
 const path = require('path');
 
-const isProd = process.env.NODE_ENV === 'production';
+function resolve(dir) {
+  return path.join(__dirname, dir);
+}
 
-module.exports = {
+module.exports = defineConfig({
+  transpileDependencies: true,
   chainWebpack: config => {
     config.module
       .rule('vue')
@@ -16,32 +18,12 @@ module.exports = {
         prefix: true,
       })
       .end();
+    config.resolve.alias
+      .set('@', resolve('src'))
+      .set('@views', resolve('src/views'))
+      .set('@components', resolve('src/components'))
+      .set('@assets', resolve('src/assets'))
+      .set('@utils', resolve('src/utils'))
+      .end();
   },
-  configureWebpack: {
-    ...aliasConfig,
-    plugins: isProd ? [
-      new PrerenderSPAPlugin({
-        staticDir: path.join(process.cwd(), 'dist'),
-        routes: [ '/' ],
-        postProcess(renderedRoute) {
-          renderedRoute.route = renderedRoute.originalRoute;
-          renderedRoute.html = renderedRoute.html.split(/>[\s]+</gmi).join('><');
-          if (renderedRoute.route.endsWith('.html')) {
-            renderedRoute.outputPath = path.join(path.join(process.cwd(), 'dist'), renderedRoute.route);
-          }
-          return renderedRoute;
-        },
-        minify: {
-          collapseBooleanAttributes: true,
-          collapseWhitespace: true,
-          decodeEntities: true,
-          keepClosingSlash: true,
-          sortAttributes: true,
-        },
-      }),
-    ] : [],
-  },
-  devServer: {
-    port: 9010,
-  },
-};
+})

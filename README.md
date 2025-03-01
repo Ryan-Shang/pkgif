@@ -1,24 +1,20 @@
-# test
+### 鸣谢
 
-## Project setup
-```
+感谢 [CaanDoll](https://github.com/CaanDoll) 开源了pkgif项目：https://github.com/CaanDoll/pkgif.net
+
+在此基础上做了调整，更新了部分依赖，调整了部分项目结构以方便使用
+
+### 使用
+
+#### 开发
+
+```bash
 npm install
-```
-
-### Compiles and hot-reloads for development
-```
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
+#### 构建
+
+```bash
 npm run build
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
